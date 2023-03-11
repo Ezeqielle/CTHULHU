@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 aes = { version = "0.7.5", features = ["ctr"] }
+walkdir = "2"
