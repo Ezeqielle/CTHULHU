@@ -9,3 +9,4 @@ edition = "2021"
 aes = { version = "0.7.5", features = ["ctr"] }
 walkdir = "2"
 sysinfo = "0.28.0"
+rand = "0.8.5"

