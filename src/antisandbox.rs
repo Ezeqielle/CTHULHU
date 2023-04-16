@@ -8,7 +8,7 @@ use std::{thread, process};
 use sysinfo::{Pid, System, SystemExt, UserExt, DiskExt, ProcessExt, NetworkExt, PidExt};
 use enigo::Enigo;
 
-fn debugger_detection() {
+fn debugger_detection() -> bool {
     let mut is_process_debugged = false;
     unsafe {
         match IsDebuggerPresent() {
@@ -20,6 +20,7 @@ fn debugger_detection() {
             }
         }
     };
+    return is_process_debugged;
 }
 
 fn sandbox_detection() -> bool{
