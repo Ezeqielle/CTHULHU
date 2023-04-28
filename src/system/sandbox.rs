@@ -1,6 +1,6 @@
-extern crate winapi;
+/* extern crate winapi;
 extern crate num_cpus;
-
+ */
 use winapi::um::debugapi::{IsDebuggerPresent};
 use std::{path::Path};
 use std::time::Duration;
@@ -8,22 +8,20 @@ use std::{thread, process};
 use sysinfo::{Pid, System, SystemExt, UserExt, DiskExt, ProcessExt, NetworkExt, PidExt};
 use enigo::Enigo;
 
-fn debugger_detection() -> bool {
-    let mut is_process_debugged = false;
+pub fn is_debugger_detected() -> bool {
     unsafe {
         match IsDebuggerPresent() {
             0 => {
-                is_process_debugged = false;
+                false
             },
             _ => {
-                is_process_debugged = true;
+                true
             }
         }
-    };
-    return is_process_debugged;
+    }
 }
 
-fn sandbox_detection() -> bool{
+pub fn is_sandbox_detected() -> bool{
     let mut is_process_in_sandbox = false;
     let sys = System::new_all();
     let suspicious_renamed_executable = ["sample.exe", "bot.exe", "sandbox.exe", "malware.exe", "test.exe", "klavme.exe", "myapp.exe", "testapp.exe", "infected.exe"];
