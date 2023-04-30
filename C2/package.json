@@ -1,0 +1,25 @@
+{
+  "name": "cthulhu-c2",
+  "version": "1.0.0",
+  "description": "C2 for CTHULHU ransomware",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ezeqielle/CTHULHU.git"
+  },
+  "keywords": [
+    "ransomware",
+    "C2",
+    "rust",
+    "node.js"
+  ],
+  "author": "Ezeqielle, MasterBigD, hxtninfosec",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ezeqielle/CTHULHU/issues"
+  },
+  "homepage": "https://github.com/Ezeqielle/CTHULHU#readme"
+}

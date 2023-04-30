@@ -5,12 +5,12 @@ const app = express();
 const port = 3000;
 
 // Set up MySQL connection
-// change to do
+// change the cread to your own
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'your_username',
-  password: 'your_password',
-  database: 'your_database'
+  user: 'root',
+  password: 'toor',
+  database: 'CTHULHU'
 });
 
 // Connect to MySQL
@@ -28,7 +28,7 @@ app.post('/api/data', (req, res) => {
   const { var1, var2, var3 } = req.body;
 
   // Insert data into MySQL
-  // change to do
+  // change table name and column names to your own
   const sql = `INSERT INTO your_table (var1, var2, var3) VALUES (?, ?, ?)`;
   const values = [var1, var2, var3];
 
