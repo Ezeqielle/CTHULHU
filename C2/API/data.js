@@ -29,7 +29,7 @@ app.post('/api/data', (req, res) => {
 
   // Insert data into MySQL
   // change table name and column names to your own
-  const sql = `INSERT INTO your_table (var1, var2, var3) VALUES (?, ?, ?)`;
+  const sql = `INSERT INTO agent (var1, var2, var3) VALUES (?, ?, ?)`;
   const values = [var1, var2, var3];
 
   db.query(sql, values, (err, result) => {

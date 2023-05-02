@@ -29,21 +29,16 @@ CREATE TABLE `agent` (
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message` (
   `messageID` int(255) NOT NULL AUTO_INCREMENT,
+  `ownerType` int(1) NOT NULL,
   `message` text NOT NULL,
-  `messageDate` datetime NOT NULL,
-  `senderOperatorID` int(255) DEFAULT NULL,
-  `receiverOperatorID` int(255) DEFAULT NULL,
-  `senderAgentID` int(255) DEFAULT NULL,
-  `receiverAgentID` int(255) DEFAULT NULL,
+  `messageDate` timestamp NOT NULL,
+  `agent` int(255) NOT NULL,
+  `operator` int(255) NOT NULL,
   PRIMARY KEY (`messageID`),
-  KEY `senderAgentID` (`senderAgentID`),
-  KEY `senderOperatorID` (`senderOperatorID`),
-  KEY `receiverOperatorID` (`receiverOperatorID`),
-  KEY `receiverAgentID` (`receiverAgentID`),
-  CONSTRAINT `message_ibfk_1` FOREIGN KEY (`senderAgentID`) REFERENCES `agent` (`agentID`),
-  CONSTRAINT `message_ibfk_5` FOREIGN KEY (`senderOperatorID`) REFERENCES `operator` (`operatorID`),
-  CONSTRAINT `message_ibfk_6` FOREIGN KEY (`receiverOperatorID`) REFERENCES `operator` (`operatorID`),
-  CONSTRAINT `message_ibfk_7` FOREIGN KEY (`receiverAgentID`) REFERENCES `agent` (`agentID`)
+  KEY `agent` (`agent`),
+  KEY `operator` (`operator`),
+  CONSTRAINT `message_ibfk_1` FOREIGN KEY (`agent`) REFERENCES `agent` (`agentID`),
+  CONSTRAINT `message_ibfk_2` FOREIGN KEY (`operator`) REFERENCES `operator` (`operatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
@@ -56,4 +51,4 @@ CREATE TABLE `operator` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- 2023-04-30 19:40:48
+-- 2023-05-02 12:14:11
