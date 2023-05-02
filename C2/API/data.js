@@ -25,12 +25,11 @@ db.connect((err) => {
 // API endpoint for receiving data
 app.post('/api/data', (req, res) => {
   // Parse incoming request data as JSON
-  const { var1, var2, var3 } = req.body;
+  const { versionOS, hosts, user, key } = req.body;
 
   // Insert data into MySQL
-  // change table name and column names to your own
-  const sql = `INSERT INTO agent (var1, var2, var3) VALUES (?, ?, ?)`;
-  const values = [var1, var2, var3];
+  const sql = `INSERT INTO agent (versionOS, hosts, user, unlockKey) VALUES (?, ?, ?, ?)`;
+  const values = [versionOS, hosts, user, key];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -39,7 +38,7 @@ app.post('/api/data', (req, res) => {
       return;
     }
     console.log('Inserted data into MySQL with ID ' + result.insertId);
-    res.status(200).send('Data inserted into MySQL');
+    res.status(200).send({ id: result.insertId });
   });
 });
 
