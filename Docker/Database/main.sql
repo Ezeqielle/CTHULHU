@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS `agent`;
 CREATE TABLE `agent` (
   `agentID` int(255) NOT NULL AUTO_INCREMENT,
   `ip` varchar(20) DEFAULT NULL,
+  `hosts` varchar(50) NOT NULL,
   `versionOS` varchar(30) NOT NULL,
   `unlockKey` varchar(255) NOT NULL,
   `hookUser` varchar(50) NOT NULL,
@@ -51,4 +52,4 @@ CREATE TABLE `operator` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- 2023-05-02 12:36:56
+-- 2023-05-02 12:41:50
