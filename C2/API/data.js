@@ -25,7 +25,7 @@ db.connect((err) => {
 // API endpoint for receiving data
 app.post('/api/data', (req, res) => {
   // Parse incoming request data as JSON
-  const { versionOS, hosts, user, key } = req.body;
+  const { versionOS, hosts, user, key , ip} = req.body;
 
   // Insert data into MySQL
   const sql = `INSERT INTO agent (versionOS, hosts, user, unlockKey) VALUES (?, ?, ?, ?)`;

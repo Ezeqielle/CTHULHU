@@ -13,12 +13,12 @@ USE `CTHULHU`;
 DROP TABLE IF EXISTS `agent`;
 CREATE TABLE `agent` (
   `agentID` int(255) NOT NULL AUTO_INCREMENT,
-  `ip` varchar(20) NOT NULL,
-  `pathToData` varchar(255) NOT NULL,
+  `ip` varchar(20) DEFAULT NULL,
   `versionOS` varchar(30) NOT NULL,
-  `unlockKey` varchar(255) DEFAULT NULL,
-  `hookDate` date NOT NULL,
+  `unlockKey` varchar(255) NOT NULL,
   `hookUser` varchar(50) NOT NULL,
+  `hookDate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+  `pathToData` varchar(255) DEFAULT NULL,
   `country` char(50) DEFAULT NULL,
   `totalFilesSend` int(255) DEFAULT NULL,
   `totalFilesEncrypt` int(255) DEFAULT NULL,
@@ -51,4 +51,4 @@ CREATE TABLE `operator` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- 2023-05-02 12:14:11
+-- 2023-05-02 12:36:56
