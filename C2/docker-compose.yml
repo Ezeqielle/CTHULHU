@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    networks:
+      - backend
+      
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
+    depends_on:
+      - mariadb
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 8080:${ADMINER_PORT}
+
+  backend:
+    build: ./backend
+    depends_on:
+      - mariadb
+    environment:
+      DB_HOST: mariadb
+      DB_USER: ${DB_USER}
+      DB_MAIN: ${DB_MAIN}
+      DB_PASS: ${DB_ROOT_PASS}
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 5000:${BACKEND_PORT}
+  
+networks:
+  backend:
+  frontend:
