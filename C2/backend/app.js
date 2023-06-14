@@ -47,6 +47,7 @@ let uploadFileMiddleware = util.promisify(uploadFile);
 
 // API endpoint for receiving data
 app.post('/api/agent/new', (req, res) => {
+  console.log("POST api agent new")
   var JSON_RES = { data: {}, error: {} }
   if (
     req.body != undefined &&
