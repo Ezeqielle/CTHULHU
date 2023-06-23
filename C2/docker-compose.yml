@@ -27,6 +27,9 @@ services:
     build: ./backend
     depends_on:
       - mariadb
+    volumes:
+    - ./backend/app.js:/app/app.js
+    - cthulhu-backend:/CTHULHU
     environment:
       DB_HOST: mariadb
       DB_USER: ${DB_USER}
@@ -41,3 +44,6 @@ services:
 networks:
   backend:
   frontend:
+
+volumes:
+  cthulhu-backend:
