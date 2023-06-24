@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 LABEL maintainer="Martin HECQUE | Peter BALIVET | MATHIS DI MASCIO"
 
@@ -8,10 +8,10 @@ RUN mkdir /app
 #Changes directory to /app
 WORKDIR /app
 
-#Copy all necessary files for the python trading bot to project directory
+#Copy all necessary files
 COPY . .
 
-RUN npm install
+RUN npm install --save
 # If you are building your code for production
 # RUN npm ci --omit=dev
 

