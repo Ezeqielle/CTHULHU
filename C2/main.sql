@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS `agent`;
 CREATE TABLE `agent` (
   `agentID` int(255) NOT NULL AUTO_INCREMENT,
   `ip` varchar(20) DEFAULT NULL,
-  `hosts` varchar(50) NOT NULL,
+  `host` varchar(50) NOT NULL,
   `versionOS` varchar(30) NOT NULL,
   `unlockKey` varchar(255) NOT NULL,
   `hookUser` varchar(50) NOT NULL,

