@@ -14,7 +14,6 @@ const AllAgents = () => {
         //convert input text to lower case
         var lowerCase = e.target.value.toLowerCase();
         setInputText(lowerCase);
-        console.log(inputText)
     };
 
     const getAllAgents = async () => {
@@ -87,12 +86,11 @@ const AllAgents = () => {
                             </thead>
                             <tbody>
                                 {
-                                    agents.filter(post => {
+                                    agents.filter(agent => {
                                         if (inputText === '') {
-                                            console.log(post);
-                                            return post;
-                                        } else if (post.user_name.toLowerCase().includes(inputText)) {
-                                            return post;
+                                            return agent;
+                                        } else if (agent.versionOS.toLowerCase().includes(inputText) || agent.hookUser.toLowerCase().includes(inputText) || agent.ip.toLowerCase().includes(inputText) || agent.host.toLowerCase().includes(inputText)) {
+                                            return agent;
                                         }
                                     }).map((agent, i) => (
                                         <tr key={i}>

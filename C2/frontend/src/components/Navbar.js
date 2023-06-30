@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import Session from 'react-session-api'
+import { Speedometer, PersonFill, PeopleFill, PcDisplay } from "react-bootstrap-icons";
+import Session from 'react-session-api';
 Session.config(true, 60)
 
 const Navbar = () => (
@@ -18,21 +19,28 @@ const Navbar = () => (
       </a>
       <ul className="navbar-nav text-light" id="accordionSidebar">
         <li className="nav-item">
+          
           <Link to="/" className="nav-link">
-            <i className="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
+            <Speedometer />
+            <span> Dashboard</span>
           </Link>
         </li>
         <li className="nav-item">
           <Link to={"/accountedit/"+Session.get("username")} className="nav-link">
-            <i className="fas fa-user"></i>
-            <span>Profile</span>
+            <PersonFill />
+            <span> Profile</span>
+          </Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/accountsmanagement" className="nav-link">
+          <PeopleFill />
+            <span> Accounts</span>
           </Link>
         </li>
         <li className="nav-item">
           <Link to="/allagentsview" className="nav-link">
-            <i className="fas fa-table"></i>
-            <span>All Agents</span>
+          <PcDisplay />
+            <span> All Agents</span>
           </Link>
         </li>
         {/* <li className="nav-item">

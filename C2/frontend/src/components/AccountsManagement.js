@@ -1,7 +1,7 @@
 import { getFetch } from "../utils/functions";
 import { useState, useEffect } from "react";
 import Session from "react-session-api";
-import { PencilSquare, PersonCircle } from "react-bootstrap-icons";
+import { PencilSquare, PersonCircle, PlusSquareFill } from "react-bootstrap-icons";
 import { useNavigate, Link } from "react-router-dom";
 
 Session.config(true, 60);
@@ -41,7 +41,13 @@ const AccountManagement = () => {
             <h3 className="text-dark mb-4">Manage accounts</h3>
             <div className="card shadow">
                 <div className="card-header py-3">
+
                     <p className="text-primary m-0 fw-bold">Employee Info</p>
+                    <div className="text-right">
+                        <Link to={"/register"}>
+                            <PlusSquareFill />
+                        </Link>
+                    </div>
                 </div>
                 <div className="card-body">
                     <div className="row">
@@ -86,12 +92,11 @@ const AccountManagement = () => {
                             </thead>
                             <tbody>
                                 {
-                                    users.filter(post => {
+                                    users.filter(user => {
                                         if (inputText === '') {
-                                            console.log(post);
-                                            return post;
-                                        } else if (post.user_name.toLowerCase().includes(inputText)) {
-                                            return post;
+                                            return user;
+                                        } else if (user.user_name.toLowerCase().includes(inputText) || user.user_email.toLowerCase().includes(inputText)) {
+                                            return user;
                                         }
                                     }).map((user, i) => (
                                         <tr key={i}>

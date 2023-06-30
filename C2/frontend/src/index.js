@@ -10,22 +10,12 @@ import {
 // Route components
 import BaseHome from './components/BaseHome';
 import HomeDashboard from './components/HomeDashboard';
-import Profile from './components/Profile';
 import AccountsManagement from './components/AccountsManagement';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import Register from './components/Register';
-import ForgotPassword from './components/ForgotPassword';
-import Host from './components/Host';
 import NotFound404 from './components/NotFound404';
-import ScanCreation from './components/ScanCreation';
-import ProjectCreation from './components/ProjectCreation';
-import ProjectDashboard from './components/ProjectDashboard';
 import AccountEdit from './components/AccountEdit';
-import Scan from './components/Scan';
-import Vulnerability from './components/Vulnerability';
-import VulnerabilitiesList from './components/VulnerabilitiesList';
-import AllProjects from './components/AllProjects';
 import AllAgents from './components/AllAgents';
 import Agent from './components/Agent';
 
@@ -47,24 +37,14 @@ root.render(
         <Routes>
           <Route path="*" element={<Navigate to="notfound"/>} />
           <Route path="/" element={<BaseHome childComponent={<HomeDashboard />} />} />
-          <Route path="/profile" element={<BaseHome childComponent={<Profile />} />} />
           <Route path="/accountsmanagement" element={<BaseHome childComponent={<AccountsManagement />} />} />
+          <Route path="/accountedit/:searcheduser" element={<BaseHome childComponent={<AccountEdit />} />} />
           <Route path="/allagentsview" element={<BaseHome childComponent={<AllAgents />} />} />
           <Route path="/agentview/:agentid" element={<BaseHome childComponent={<Agent />} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
-          <Route path="/register" element={<Register />} />
-          {/* <Route path="/forgotpassword" element={<ForgotPassword />} /> */}
+          <Route path="/register" element={<BaseHome childComponent={<Register />} />} />
           <Route path="/notfound" element={<NotFound404 />} />
-          <Route path="/scancreation/:projectId" element={<BaseHome childComponent={<ScanCreation />} />} />
-          <Route path="/projectcreation" element={<BaseHome childComponent={<ProjectCreation />} />} />
-          <Route path="/projectdashboard/:projectId" element={<BaseHome childComponent={<ProjectDashboard />} />} />
-          <Route path="/allprojects" element={<BaseHome childComponent={<AllProjects />} />} />
-          <Route path="/accountedit/:searcheduser" element={<BaseHome childComponent={<AccountEdit />} />} />
-          <Route path="/scan/:scanId" element={<BaseHome childComponent={<Scan />} />} />
-          <Route path="/host/:hostId" element={<BaseHome childComponent={<Host />} />} />
-          <Route path="/vulnerability/:portId/:cveId" element={<BaseHome childComponent={<Vulnerability />} />} />
-          <Route path="/vulnerabilitiesList" element={<BaseHome childComponent={<VulnerabilitiesList />} />} />
         </Routes>
   </BrowserRouter>
 );

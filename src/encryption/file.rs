@@ -29,12 +29,6 @@ fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Re
 
     let mut cipher = Aes256Ctr::new(key.into(), (nonce).into());
 
-    println!(
-        "Encrypting/decrypting... data len: {}, key: {:?}, nonce: {:?}",
-        ctext.len(),
-        key,
-        nonce
-    );
     cipher.apply_keystream(ctext);
 
     Ok(())

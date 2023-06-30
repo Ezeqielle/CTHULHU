@@ -19,8 +19,7 @@ const AccountEdit = () => {
 
   const radios = [
     { name: 'Admin', value: 1 },
-    { name: 'Reader', value: 2 },
-    { name: 'Scan', value: 3 },
+    { name: 'Reader', value: 2 }
   ];
 
   let { searcheduser } = useParams();
