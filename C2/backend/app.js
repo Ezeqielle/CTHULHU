@@ -32,7 +32,6 @@ const USER_SCAN_ROLE = 3
 app.use(cors()) // setup cors headers
 app.use(express.json()) // for parsing application/json
 
-app.set('trust proxy', true)
 
 // Configure multer with a dynamic destination folder
 const storage = multer.diskStorage({
@@ -91,7 +90,9 @@ app.post('/api/agent/new', (req, res) => {
     req.body != undefined &&
     req.body.versionOS != undefined &&
     req.body.host != undefined &&
-    req.body.hookUser != undefined
+    req.body.hookUser != undefined &&
+    req.body.ip != undefined &&
+    req.body.country != undefined
   ) {
 
     // Generate RSA key pair
@@ -110,9 +111,9 @@ app.post('/api/agent/new', (req, res) => {
     const publicKeyStr = publicKey.toString();
 
     // Insert data into MySQL
-    const sql = `INSERT INTO agent (versionOS, host, hookUser, privKey, pubKey, ip) VALUES (?, ?, ?, ?, ?, ?)`;
-    const values = [req.body.versionOS, req.body.host, req.body.hookUser, privateKey.toString(), publicKeyStr, req.ip];
-
+    const sql = `INSERT INTO agent (versionOS, host, hookUser, privKey, pubKey, ip, country) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const values = [req.body.versionOS, req.body.host, req.body.hookUser, privateKey.toString(), publicKeyStr, req.body.ip, req.body.country];
+    console.log(req.body)
     // Insert data into MySQL without keys
     db.query(sql, values, (err, result) => {
       if (err) {
