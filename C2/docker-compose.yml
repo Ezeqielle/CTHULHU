@@ -40,6 +40,16 @@ services:
       - frontend
     ports:
       - 5000:${BACKEND_PORT}
+
+  frontend:
+    restart: always
+    build: ./frontend
+    volumes:
+    - ./frontend/src:/app/src
+    ports:
+      - 80:80
+    networks:
+      - frontend
   
 networks:
   backend:

