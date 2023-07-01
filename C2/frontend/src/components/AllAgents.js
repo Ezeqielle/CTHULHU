@@ -21,8 +21,9 @@ const AllAgents = () => {
             { username: Session.get("username"), token: Session.get("token") },
             "/getAllAgents"
         );
-
-        setAgents(allUsers.data.agents);
+        if (allUsers.data.agents != undefined){
+            setAgents(allUsers.data.agents);
+        }
     };
 
     let navigate = useNavigate();

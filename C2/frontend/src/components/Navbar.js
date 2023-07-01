@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Speedometer, PersonFill, PeopleFill, PcDisplay } from "react-bootstrap-icons";
+import { Speedometer, PersonFill, PeopleFill, PcDisplay, ChatDotsFill } from "react-bootstrap-icons";
 import Session from 'react-session-api';
 Session.config(true, 60)
 
@@ -19,44 +19,34 @@ const Navbar = () => (
       </a>
       <ul className="navbar-nav text-light" id="accordionSidebar">
         <li className="nav-item">
-          
+
           <Link to="/" className="nav-link">
             <Speedometer />
             <span> Dashboard</span>
           </Link>
         </li>
         <li className="nav-item">
-          <Link to={"/accountedit/"+Session.get("username")} className="nav-link">
+          <Link to={"/accountedit/" + Session.get("username")} className="nav-link">
             <PersonFill />
             <span> Profile</span>
           </Link>
         </li>
         <li className="nav-item">
           <Link to="/accountsmanagement" className="nav-link">
-          <PeopleFill />
+            <PeopleFill />
             <span> Accounts</span>
           </Link>
         </li>
         <li className="nav-item">
           <Link to="/allagentsview" className="nav-link">
-          <PcDisplay />
+            <PcDisplay />
             <span> All Agents</span>
           </Link>
         </li>
-        {/* <li className="nav-item">
-          <Link to="/forgotpassword" className="nav-link">
-            <i className="fas fa-key"></i>
-            <span>Forgotten Password</span>
-          </Link>
-        </li> */}
         <li className="nav-item">
-          <Link to="/projectcreation" className="nav-link">
-            <i className="fas fa-window-maximize"></i>
-            <span>Project Creation</span>
-          </Link>
-          <Link to="/allprojects" className="nav-link">
-            <i className="fas fa-window-maximize"></i>
-            <span>All Projects</span>
+          <Link to="/chat" className="nav-link">
+            <ChatDotsFill />
+            <span> Chat</span>
           </Link>
         </li>
       </ul>

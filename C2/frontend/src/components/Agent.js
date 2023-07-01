@@ -65,8 +65,6 @@ const Agent = () => {
 
     const getFilesInfo = async () => {
         const allFiles = await getFetch({ username: Session.get("username"), token: Session.get("token"), agentID: agentid }, "/getAgentFiles")
-        console.log("FILES: ")
-        console.log(allFiles)
         setAgentFiles(allFiles.data.files)
     }
 
@@ -145,7 +143,7 @@ const Agent = () => {
                                                 </div>
                                             </div>
                                             <div className="col">
-                                                <div className="mb-3"><label className="form-label" htmlFor="username"><strong>Total Size</strong></label>
+                                                <div className="mb-3"><label className="form-label" htmlFor="username"><strong>Total File Size</strong></label>
                                                     <p>{totalFilesSize}<br /></p>
                                                 </div>
                                             </div>
@@ -222,7 +220,7 @@ const Agent = () => {
                                             }).map((file, i) => (
                                                 <tr key={i}>
                                                     <td>{file.name}</td>
-                                                    <td>{humanFileSize(file.size)}</td>
+                                                    <td>{humanFileSize(file.fileSizeInBytes)}</td>
                                                     <td className="text-center">
                                                         <Download onClick={() => {downloadFile(file.name)}} />
                                                     </td>

@@ -8,10 +8,21 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 
+
 const httpsOptions = {
   key: fs.readFileSync('key.pem'),
   cert: fs.readFileSync('cert.pem')
 };
+
+const app = express();
+
+const server = https.createServer(httpsOptions, app);
+
+const socketIO = require('socket.io')(server, {
+  cors: {
+      origin: "*"
+  }
+});
 
 const DATA_AGENTS_FOLDER = "/CTHULHU/users"
 try {
@@ -23,7 +34,7 @@ try {
   console.log(err)
 }
 
-const app = express();
+
 
 const port = 5000;
 
@@ -62,6 +73,40 @@ db.connect((err) => {
     return;
   }
   console.log('Connected to MySQL database as ID ' + db.threadId);
+});
+
+let users = [];
+
+socketIO.on('connection', (socket) => {
+  console.log(`⚡: ${socket.id} user just connected!`)
+  socket.on("message", data => {
+    console.log("Message:", )
+    socketIO.emit("messageResponse", data)
+  })
+
+  socket.on("typing", data => (
+    socket.broadcast.emit("typingResponse", data)
+  ))
+
+  socket.on("newUser", data => {
+    let userAlreadyExist = false;
+    for (let user of users) {
+      if (user.userName === data.userName && user.socketID === data.socketID){
+        userAlreadyExist = true;
+      }
+    }
+    if (!userAlreadyExist) {
+      users.push(data)
+      socketIO.emit("newUserResponse", users)
+    }
+  })
+
+  socket.on('disconnect', () => {
+    console.log('🔥: A user disconnected');
+    users = users.filter(user => user.socketID !== socket.id)
+    socketIO.emit("newUserResponse", users)
+    socket.disconnect()
+  });
 });
 
 const getFileInfoFromFolder = (route) => {
@@ -134,7 +179,7 @@ app.get('/download', function (req, res) {
     try {
       const agentID = req.query.agentID.toString().replace("/", "").replace("\\", "")
       const fileName = req.query.file.replace("/", "").replace("\\", "")
-      const file = DATA_AGENTS_FOLDER + "/" + agentID + "/" +fileName;
+      const file = DATA_AGENTS_FOLDER + "/" + agentID + "/" + fileName;
       console.log(file)
       if (fs.existsSync(file)) {
         var mimetype = mime.lookup(file);
@@ -685,4 +730,5 @@ app.get('/getAgentFiles', async (req, res) => {
   console.log(`Server running at http://localhost:${port}/`);
 }); */
 
-https.createServer(httpsOptions, app).listen(port);
+
+server.listen(port);

@@ -6,6 +6,8 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+import socketIO from "socket.io-client";
+import { SERVER_PORT, SERVER_IP } from './utils/config';
 
 // Route components
 import BaseHome from './components/BaseHome';
@@ -18,6 +20,9 @@ import NotFound404 from './components/NotFound404';
 import AccountEdit from './components/AccountEdit';
 import AllAgents from './components/AllAgents';
 import Agent from './components/Agent';
+import ChatPage from './components/ChatPage';
+import ChatUserLogin from './components/ChatUserLogin';
+import ChatUserPage from './components/ChatUserPage';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -27,8 +32,8 @@ import './assets/bootstrap/css/bootstrap.min.css';
 import './assets/fonts/fontawesome-all.min.css';
 import './assets/fonts/font-awesome.min.css';
 import './assets/fonts/fontawesome5-overrides.min.css';
-console.log(process.env.REACT_APP_HOST_IP)
 
+const socket = socketIO.connect("https://"+ SERVER_IP +":" + SERVER_PORT);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -41,7 +46,10 @@ root.render(
           <Route path="/accountedit/:searcheduser" element={<BaseHome childComponent={<AccountEdit />} />} />
           <Route path="/allagentsview" element={<BaseHome childComponent={<AllAgents />} />} />
           <Route path="/agentview/:agentid" element={<BaseHome childComponent={<Agent />} />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/chat" element={<BaseHome childComponent={<ChatPage socket={socket} />} />} />
+          <Route path="/chatuserlogin" element={<ChatUserLogin socket={socket} />} />
+          <Route path="/chatuser/:username" element={<ChatUserPage socket={socket} />} />
+          <Route path="/login" element={<Login socket={socket} />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/register" element={<BaseHome childComponent={<Register />} />} />
           <Route path="/notfound" element={<NotFound404 />} />
