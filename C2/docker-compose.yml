@@ -28,7 +28,6 @@ services:
     depends_on:
       - mariadb
     volumes:
-    - ./backend/app.js:/app/app.js
     - cthulhu-backend:/CTHULHU
     environment:
       DB_HOST: mariadb
@@ -44,8 +43,6 @@ services:
   frontend:
     restart: always
     build: ./frontend
-    volumes:
-    - ./frontend/src:/app/src
     ports:
       - 80:80
     networks:
