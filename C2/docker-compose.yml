@@ -44,7 +44,7 @@ services:
     restart: always
     build: ./frontend
     ports:
-      - 80:80
+      - 4443:4443
     networks:
       - frontend
   
