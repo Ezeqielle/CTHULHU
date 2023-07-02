@@ -20,7 +20,7 @@ const server = https.createServer(httpsOptions, app);
 
 const socketIO = require('socket.io')(server, {
   cors: {
-      origin: "*"
+    origin: "*"
   }
 });
 
@@ -78,9 +78,7 @@ db.connect((err) => {
 let users = [];
 
 socketIO.on('connection', (socket) => {
-  console.log(`⚡: ${socket.id} user just connected!`)
   socket.on("message", data => {
-    console.log("Message:", )
     socketIO.emit("messageResponse", data)
   })
 
@@ -91,7 +89,7 @@ socketIO.on('connection', (socket) => {
   socket.on("newUser", data => {
     let userAlreadyExist = false;
     for (let user of users) {
-      if (user.userName === data.userName && user.socketID === data.socketID){
+      if (user.userName === data.userName && user.socketID === data.socketID) {
         userAlreadyExist = true;
       }
     }
@@ -102,7 +100,6 @@ socketIO.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    console.log('🔥: A user disconnected');
     users = users.filter(user => user.socketID !== socket.id)
     socketIO.emit("newUserResponse", users)
     socket.disconnect()
@@ -562,6 +559,43 @@ app.get('/getAgentInfo', async (req, res) => {
     } else {
       JSON_RES.error = { errorMsg: "Bad token" }
       res.status(403)
+      res.json(JSON_RES);
+      res.end();
+    }
+  } else {
+    JSON_RES.error = { errorMsg: "Bad parameters" }
+    res.status(400)
+    res.json(JSON_RES);
+    res.end();
+  }
+})
+
+app.get('/getAgentTagInfo', async (req, res) => {
+  var JSON_RES = { data: {}, error: {} }
+  if (req.query.agentTag != undefined) {
+    let buff = new Buffer(req.query.agentTag, 'base64');
+    let text = buff.toString('ascii');
+    const agentTag = text.split("#")
+    if (agentTag.length === 3){
+      const agentId = agentTag[0]
+      const agentHostname = agentTag[1]
+      const agentHookeUser = agentTag[2]
+      db.query('SELECT * FROM agent WHERE agentID = ? AND host = ? AND hookUser = ?', [agentId, agentHostname, agentHookeUser], (error, results) => {
+        // If there is an issue with the query, output the error
+        if (error) throw error;
+
+        if (results.length > 0) {
+          JSON_RES.data = { agent: results[0] }
+        } else {
+          JSON_RES.error = { errorMsg: "Agent does not exist" }
+          res.status(404)
+        }
+        res.json(JSON_RES);
+        res.end();
+      });
+    } else {
+      JSON_RES.error = { errorMsg: "Bad Agent Tag" }
+      res.status(400)
       res.json(JSON_RES);
       res.end();
     }

@@ -13,6 +13,7 @@ const ChatPage = ({ socket }) => {
     const [users, setUsers] = useState([])
     const [typingStatus, setTypingStatus] = useState("")
     const [messageTo, setMessageTo] = useState("")
+    const [chattingUser, setchattingUser] = useState("")
 
     const lastMessageRef = useRef(null);
     let navigate = useNavigate();
@@ -33,6 +34,7 @@ const ChatPage = ({ socket }) => {
             }
         }
         setMessagesToView(messagesToView)
+        setchattingUser(messageTo)
     }, [messageTo, messages])
 
     useEffect(() => {
@@ -62,12 +64,16 @@ const ChatPage = ({ socket }) => {
     return (
         <div className="chat">
             <div className='chat__sidebar'>
-                <h2>Open Chat</h2>
+                <h2>{chattingUser !== ""? "Chatting with " + chattingUser: "Please select chat user"}</h2>
                 <div>
                     <h4 className='chat__header'>ACTIVE USERS</h4>
                     <div className='chat__users'>
                         {
-                            users.map(user =>
+                            users.filter(user => {
+                                if (user.userName !== Session.get("username")) {
+                                    return user;
+                                }
+                            }).map(user =>
                                 <Button key={user.socketID + user.userName} variant="light" onClick={() => setMessageTo(user.userName)}>{user.userName}</Button>
                             )
                         }

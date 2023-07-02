@@ -4,17 +4,10 @@ import { useNavigate } from "react-router-dom"
 const ChatBody = ({ messages, typingStatus, lastMessageRef, username, messageTo }) => {
     const navigate = useNavigate()
 
-    const handleLeaveChat = () => {
-        localStorage.removeItem("userName")
-        navigate("/")
-        window.location.reload()
-    }
-
     return (
         <>
             <header className='chat__mainHeader'>
-                <p>Hangout with Colleagues</p>
-                <button className='leaveChat__btn' onClick={handleLeaveChat}>LEAVE CHAT</button>
+                <p>CTHULHU Support Chat</p>
             </header>
 
 
@@ -29,7 +22,7 @@ const ChatBody = ({ messages, typingStatus, lastMessageRef, username, messageTo 
                         </div>
                     ) : (
                         <div className="message__chats" key={message.id}>
-                            <p>{message.name}</p>
+                            <p>{message.from}</p>
                             <div className='message__recipient'>
                                 <p>{message.text}</p>
                             </div>

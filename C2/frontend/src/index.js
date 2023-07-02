@@ -21,8 +21,8 @@ import AccountEdit from './components/AccountEdit';
 import AllAgents from './components/AllAgents';
 import Agent from './components/Agent';
 import ChatPage from './components/ChatPage';
-import ChatUserLogin from './components/ChatUserLogin';
 import ChatUserPage from './components/ChatUserPage';
+import UserPay from './components/UserPay';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -47,8 +47,8 @@ root.render(
           <Route path="/allagentsview" element={<BaseHome childComponent={<AllAgents />} />} />
           <Route path="/agentview/:agentid" element={<BaseHome childComponent={<Agent />} />} />
           <Route path="/chat" element={<BaseHome childComponent={<ChatPage socket={socket} />} />} />
-          <Route path="/chatuserlogin" element={<ChatUserLogin socket={socket} />} />
           <Route path="/chatuser/:username" element={<ChatUserPage socket={socket} />} />
+          <Route path="/userpay/:agenttag" element={<UserPay />} />
           <Route path="/login" element={<Login socket={socket} />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/register" element={<BaseHome childComponent={<Register />} />} />
