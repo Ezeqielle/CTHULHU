@@ -33,7 +33,7 @@ import './assets/fonts/fontawesome-all.min.css';
 import './assets/fonts/font-awesome.min.css';
 import './assets/fonts/fontawesome5-overrides.min.css';
 
-const socket = socketIO.connect("https://"+ SERVER_IP +":" + SERVER_PORT);
+const socket = socketIO.connect("http://"+ SERVER_IP +":" + SERVER_PORT);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -41,7 +41,7 @@ root.render(
   <BrowserRouter>
         <Routes>
           <Route path="*" element={<Navigate to="notfound"/>} />
-          <Route path="/" element={<BaseHome childComponent={<HomeDashboard />} />} />
+          <Route path="/" element={<BaseHome childComponent={<AllAgents />} />} />
           <Route path="/accountsmanagement" element={<BaseHome childComponent={<AccountsManagement />} />} />
           <Route path="/accountedit/:searcheduser" element={<BaseHome childComponent={<AccountEdit />} />} />
           <Route path="/allagentsview" element={<BaseHome childComponent={<AllAgents />} />} />

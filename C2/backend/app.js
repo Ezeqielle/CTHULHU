@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const crypto = require("crypto");
-const https = require('https');
+//const https = require('https');
 const multer = require("multer");
 const mime = require('mime');
 const cors = require('cors');
@@ -9,14 +9,16 @@ const fs = require('fs');
 const path = require('path');
 
 
-const httpsOptions = {
+/* const httpsOptions = {
   key: fs.readFileSync('key.pem'),
   cert: fs.readFileSync('cert.pem')
-};
+}; */
 
 const app = express();
 
-const server = https.createServer(httpsOptions, app);
+//const server = https.createServer(httpsOptions, app);
+
+const server = require('http').Server(app);
 
 const socketIO = require('socket.io')(server, {
   cors: {
