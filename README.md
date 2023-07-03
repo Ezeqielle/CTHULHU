@@ -5,6 +5,8 @@
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=Flat&logo=react&logoColor=%2361DAFB)
 [![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=Flat)](./LICENSE)
 
+![CTHULHU](cthulhu.jpg)
+
 ## Table of Contents
 
 - [CTHULHU](#cthulhu)
