@@ -28,22 +28,6 @@ CREATE TABLE `agent` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-DROP TABLE IF EXISTS `message`;
-CREATE TABLE `message` (
-  `messageID` int(255) NOT NULL AUTO_INCREMENT,
-  `ownerType` int(1) NOT NULL,
-  `message` text NOT NULL,
-  `messageDate` timestamp NOT NULL,
-  `agent` int(255) NOT NULL,
-  `operator` int(255) NOT NULL,
-  PRIMARY KEY (`messageID`),
-  KEY `agent` (`agent`),
-  KEY `operator` (`operator`),
-  CONSTRAINT `message_ibfk_1` FOREIGN KEY (`agent`) REFERENCES `agent` (`agentID`),
-  CONSTRAINT `message_ibfk_2` FOREIGN KEY (`operator`) REFERENCES `operator` (`operatorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
   `role_id` int NOT NULL AUTO_INCREMENT,
