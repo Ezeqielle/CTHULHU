@@ -69,8 +69,10 @@ const Agent = () => {
     }
 
     const downloadFile = async (file) => {
+        
+        const encodedUrl = encodeURI("https://" + SERVER_IP + ":" + SERVER_PORT + "/download?file=" + btoa(file) + "&agentID=" + agentid)
         saveAs(
-            "https://" + SERVER_IP + ":" + SERVER_PORT + "/download?file=" + file + "&agentID=" + agentid,
+            encodedUrl,
             file
         )
     }

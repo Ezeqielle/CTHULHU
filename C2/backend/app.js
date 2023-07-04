@@ -175,9 +175,8 @@ app.get('/download', function (req, res) {
 
     try {
       const agentID = req.query.agentID.toString().replace("/", "").replace("\\", "")
-      const fileName = req.query.file.replace("/", "").replace("\\", "")
+      const fileName = atob(decodeURIComponent(req.query.file)).replace("/", "").replace("\\", "")
       const file = DATA_AGENTS_FOLDER + "/" + agentID + "/" + fileName;
-      console.log(file)
       if (fs.existsSync(file)) {
         var mimetype = mime.lookup(file);
         var filename = path.basename(file);

