@@ -33,7 +33,7 @@ import './assets/fonts/fontawesome-all.min.css';
 import './assets/fonts/font-awesome.min.css';
 import './assets/fonts/fontawesome5-overrides.min.css';
 
-const socket = socketIO.connect("http://"+ SERVER_IP +":" + SERVER_PORT);
+const socket = socketIO.connect("https://"+ SERVER_IP +":" + SERVER_PORT);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

@@ -1,7 +1,7 @@
 import { SERVER_PORT, SERVER_IP } from './config';
 
 export async function postFetch(bodyData, url){
-    return fetch('http://' + SERVER_IP + ':' + SERVER_PORT + url, {
+    return fetch('https://' + SERVER_IP + ':' + SERVER_PORT + url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export async function getFetch(queryData, url){
 
         queryString += `${item[0]}=${item[1]}&`
     }
-    return fetch('http://' + SERVER_IP + ':' + SERVER_PORT + url +queryString, {
+    return fetch('https://' + SERVER_IP + ':' + SERVER_PORT + url +queryString, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
