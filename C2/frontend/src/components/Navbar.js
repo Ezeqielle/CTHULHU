@@ -19,13 +19,6 @@ const Navbar = () => (
       </a>
       <ul className="navbar-nav text-light" id="accordionSidebar">
         <li className="nav-item">
-
-          <Link to="/" className="nav-link">
-            <Speedometer />
-            <span> Dashboard</span>
-          </Link>
-        </li>
-        <li className="nav-item">
           <Link to={"/accountedit/" + Session.get("username")} className="nav-link">
             <PersonFill />
             <span> Profile</span>

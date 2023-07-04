@@ -29,7 +29,7 @@ const AllAgents = () => {
     let navigate = useNavigate();
 
     useEffect(() => {
-        if (Session.get("username") === undefined || Session.get("token") === undefined) {
+        if (Session.get("username") == undefined || Session.get("token") == undefined) {
             return navigate("/login");
         }
 

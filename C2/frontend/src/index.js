@@ -11,7 +11,6 @@ import { SERVER_PORT, SERVER_IP } from './utils/config';
 
 // Route components
 import BaseHome from './components/BaseHome';
-import HomeDashboard from './components/HomeDashboard';
 import AccountsManagement from './components/AccountsManagement';
 import Login from './components/Login';
 import Logout from './components/Logout';
@@ -41,7 +40,7 @@ root.render(
   <BrowserRouter>
         <Routes>
           <Route path="*" element={<Navigate to="notfound"/>} />
-          <Route path="/" element={<BaseHome childComponent={<HomeDashboard />} />} />
+          <Route path="/" element={<BaseHome childComponent={<AllAgents />} />} />
           <Route path="/accountsmanagement" element={<BaseHome childComponent={<AccountsManagement />} />} />
           <Route path="/accountedit/:searcheduser" element={<BaseHome childComponent={<AccountEdit />} />} />
           <Route path="/allagentsview" element={<BaseHome childComponent={<AllAgents />} />} />
