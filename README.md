@@ -36,9 +36,7 @@ CTHULHU is a package a package containing a ransomware and a C2. The ransomware 
 
 # Infrastructure
 
-This document provides an overview and documentation for the API implemented using Docker containers and the provided configuration files (Dockerfile, docker-compose.yml, and .env).
-
-# Docker Container Setup
+## Docker Container Setup
 
 The API is designed to run inside a Docker container. The container includes the necessary dependencies and configurations for the API to function properly. The Docker container is built using the provided `Dockerfile`.
 
@@ -81,7 +79,7 @@ The `Dockerfile` sets up the Docker container by:
 7. Exposing port `5000` for the API to listen on.
 8. Specifying the command to run the API using `CMD [ "node", "app.js" ]`.
 
-# Docker Compose Setup
+## Docker Compose Setup
 
 To simplify the deployment and management of the API and its dependencies, Docker Compose is used. The `docker-compose.yml` file defines the services and their configurations.
 
@@ -96,6 +94,8 @@ services:
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    volumes:
+    - ./main.sql:/docker-entrypoint-initdb.d/dump.sql
     networks:
       - backend
 
@@ -129,6 +129,14 @@ services:
       - frontend
     ports:
       - 5000:${BACKEND_PORT}
+
+  frontend:
+    restart: always
+    build: ./frontend
+    ports:
+      - 443:443
+    networks:
+      - frontend
 
 networks:
   backend:
@@ -206,9 +214,7 @@ Make sure to adjust these values as needed for your specific deployment.
 
 # Ransomware
 
-This document provides an overview and documentation of the Rust code for the ransomware.
-
-# Debugger and Sandbox Detection
+## Debugger and Sandbox Detection
 
 This code provides functions to detect the presence of a debugger or a sandbox environment. It includes the following functions:
 
@@ -308,7 +314,7 @@ The function checks the network interfaces for specific MAC addresses that might
 - MAC addresses starting with "08:16:3E"
 - MAC addresses starting with "08:00:27"
 
-# System Information Retrieval
+## System Information Retrieval
 
 This code provides functions to retrieve various system information such as disk details, operating system version, hostname, username, and user home directory.
 
@@ -362,9 +368,9 @@ The function `get_username()` uses the `whoami` crate to retrieve the username o
 
 The function `get_user_home()` utilizes the `home` crate to retrieve the home directory path of the current user. It uses `home::home_dir()` to obtain the `Option<PathBuf>` representing the user's home directory. If the home directory is found, it is returned as a `PathBuf`; otherwise, a fallback value of "unknown" is used.
 
-# Encryption / Decryption files
+## Encryption / Decryption files
 
-## Overview
+### Overview
 
 This code provides functions for encrypting and decrypting files using AES-256 CTR encryption. It supports multi-threaded encryption and decryption of files in a specified directory. The encryption is performed using RSA public-key cryptography, where the AES key is encrypted with the recipient's public key before being stored in the encrypted file.
 
@@ -378,7 +384,7 @@ The code is organized into several functions and helper methods. Here's a brief 
 - `encrypt_decrypt_file`: This function encrypts or decrypts a file based on the specified parameters. It uses AES-CTR encryption for the file data and RSA encryption for the AES key.
 - `multi_threaded_encrypt_decrypt_files`: This function performs multi-threaded encryption or decryption on multiple files within a directory. It distributes the files among multiple threads for parallel processing.
 
-## Usage
+### Usage
 
 To use this code, you need to import the necessary dependencies:
 
@@ -443,13 +449,7 @@ pub fn multi_threaded_encrypt_decrypt_files(
 
 This function performs multi-threaded processing on the files in the specified directory, distributing the workload among multiple threads for faster execution.
 
-## Limitations
-
-- The code assumes the use of AES-256 CTR mode for encryption and decryption. Other modes or key sizes are not supported.
-- The RSA encryption and decryption operations use the PKCS#1 v1.5 padding scheme. Other padding schemes are not supported.
-- The code doesn't provide error handling for all possible failure scenarios. Some error cases may result in a panic or incomplete operations.
-
-## Examples
+### Examples
 
 Example usage of the `encrypt_decrypt_file` function:
 
@@ -475,9 +475,9 @@ let is_encryption = 1;
 multi_threaded_encrypt_decrypt_files(directory, private_public_key, user_id, is_encryption);
 ```
 
-# Ecryption / Decryption for external disk
+## Ecryption / Decryption for external disk
 
-## Function Description
+### Function Description
 
 The code snippet defines a function named `encrypt_decrypt_external_disks` with the following signature:
 
@@ -485,19 +485,19 @@ The code snippet defines a function named `encrypt_decrypt_external_disks` with 
 pub fn encrypt_decrypt_external_disks(private_public_key: String, user_id: String, is_encryption: u8)
 ```
 
-### Parameters
+#### Parameters
 
 - `private_public_key` (String): A string representing the private/public key used for encryption/decryption.
 - `user_id` (String): A string representing the user ID.
 - `is_encryption` (u8): An unsigned 8-bit integer representing the operation mode. It determines whether encryption or decryption should be performed.
 
-### Function Logic
+#### Function Logic
 
 The `encrypt_decrypt_external_disks` function performs encryption or decryption on external disks using the provided private/public key. It iterates over the available disks, excluding the "C:\\" disk, and calls the `multi_threaded_encrypt_decrypt_files` function to perform encryption or decryption on the files within each disk.
 
 The function uses the `get_disks` function from the `crate::system::info` module to obtain a list of available disks. For each disk (excluding the system disk "C:\\"), it calls the `multi_threaded_encrypt_decrypt_files` function, passing the disk path, private/public key, user ID, and operation mode as arguments.
 
-## Example Usage
+### Example Usage
 
 Here is an example of how you can use the `encrypt_decrypt_external_disks` function:
 
@@ -515,9 +515,9 @@ In the example above, the function is called with the appropriate arguments to p
 
 Make sure to replace `"your_private_public_key"` and `"your_user_id"` with the actual values you want to use.
 
-# API connection
+## API connection
 
-## Overview
+### Overview
 
 This code provides a `C2API` struct that encapsulates functionalities related to interacting with a command and control (C2) API. It includes methods for making POST and GET requests, retrieving public IP information, and uploading files to the C2 server.
 
@@ -539,11 +539,11 @@ use std::{
 
 Make sure to add these dependencies to your project's `Cargo.toml` file.
 
-## Usage
+### Usage
 
 To use this code, create an instance of the `C2API` struct and call its methods. Here's an overview of the available methods:
 
-### `new`
+#### `new`
 
 ```rust
 pub fn new() -> Self
@@ -551,7 +551,7 @@ pub fn new() -> Self
 
 This method creates a new instance of the `C2API` struct and initializes the base URL for the C2 API.
 
-### `format_response`
+#### `format_response`
 
 ```rust
 async fn format_response(self, response: Result<Response, Error>) -> HashMap<String, Value>
@@ -559,7 +559,7 @@ async fn format_response(self, response: Result<Response, Error>) -> HashMap<Str
 
 This private method formats the response received from the API into a `HashMap<String, Value>`. It handles success and error cases, returning the response as a `HashMap` for further processing.
 
-### `post`
+#### `post`
 
 ```rust
 pub async fn post(self, json_body: &Value, uri: &str) -> HashMap<String, Value>
@@ -567,7 +567,7 @@ pub async fn post(self, json_body: &Value, uri: &str) -> HashMap<String, Value>
 
 This method sends a POST request to the C2 API with the provided JSON body and URI. It returns the response as a `HashMap<String, Value>`.
 
-### `get_public_ip_info`
+#### `get_public_ip_info`
 
 ```rust
 pub async fn get_public_ip_info(self) -> HashMap<String, Value>
@@ -575,7 +575,7 @@ pub async fn get_public_ip_info(self) -> HashMap<String, Value>
 
 This method retrieves public IP information by sending a GET request to an external service. It returns the response as a `HashMap<String, Value>`.
 
-### `upload_file`
+#### `upload_file`
 
 ```rust
 pub fn upload_file(self, file_path: String, user_id: &str) -> Result<(), Box<dyn std::error::Error>>
@@ -583,12 +583,7 @@ pub fn upload_file(self, file_path: String, user_id: &str) -> Result<(), Box<dyn
 
 This method uploads a file to the C2 server in chunks using a multipart/form-data request. It takes the file path and user ID as parameters and returns `Ok(())` if the upload is successful or an error if any issues occur.
 
-## Limitations
-
-- The code assumes the use of the `reqwest` library for making HTTP requests. Other HTTP libraries are not supported.
-- The code relies on specific endpoints and response formats from the C2 API. Modifying the API or using a different API may require adjustments to the code.
-
-## Examples
+### Examples
 
 Example usage of the `C2API` struct:
 
@@ -616,15 +611,15 @@ match api.upload_file(file_path.to_string(), user_id) {
 
 Note: Replace the placeholder values with appropriate data for your use case.
 
-# Shadow copy deletion
+## Shadow copy deletion
 
 This code provides a function to delete shadow copies using the `vssadmin` command.
 
-### `delete_shadow_copies()`
+### delete_shadow_copies()
 
 Deletes shadow copies using the `vssadmin` command.
 
-#### Command Execution
+### Command Execution
 
 The function executes the following command using the Command module:
 
@@ -654,9 +649,9 @@ The function checks the exit status of the command execution using `output.statu
 
 Note: The actual output captured from the `vssadmin` command is not used in this code, but it can be accessed from the `stdout` and `stderr` fields of the `output` struct if needed.
 
-# Main.rs
+## Main.rs
 
-## Overview
+### Overview
 
 This code represents an entry point for a program that performs certain actions based on command-line arguments. It imports and utilizes modules `c2`, `encryption`, and `system` for various functionalities related to interacting with a C2 API, encryption, and system information.
 
@@ -678,11 +673,11 @@ use std::{
 
 Make sure to add these dependencies to your project's `Cargo.toml` file.
 
-## Usage
+### Usage
 
 The code checks the command-line arguments and performs different actions based on the number of arguments.
 
-### Case 1: No Arguments
+#### Case 1: No Arguments
 
 If no arguments are provided, the code checks if a debugger or sandbox environment is detected using the `sandbox` module from the `system` module.
 
@@ -702,7 +697,7 @@ If no debugger or sandbox is detected, the code proceeds with the following step
 12. Writes a message containing the recovery instructions to a file named `HELP_RECOVER_ALL_MY_FILES.txt`.
 13. Deletes shadow copies using the `delete_shadow_copies` method from the `file` module in the `system` module.
 
-### Case 2: One Argument
+#### Case 2: One Argument
 
 If one argument is provided, the code assumes it is a path to a private key file.
 
@@ -711,13 +706,7 @@ The code performs the following steps:
 1. Reads the contents of the private key file.
 2. Performs file and disk encryption using methods from the `encryption` module.
 
-## Limitations
-
-- The code assumes the usage of the `tokio` runtime for asynchronous operations.
-- The code relies on specific modules and their implementations in the `c2`, `encryption`, and `system` files. Ensure these files are present and contain the required functionality.
-- The code depends on specific C2 API endpoints and response formats. Modify the code if using a different API or endpoints.
-
-## Examples
+### Examples
 
 Example usage of the code:
 
@@ -734,7 +723,7 @@ Ensure that you have the required dependencies, modules, and files in your proje
 
 This document provides an overview and documentation for the API implemented in the provided code. The API allows clients to interact with a server for managing agents and uploading files.
 
-# Base URL
+## Base URL
 
 The API create its own nodejs server at this address
 
@@ -742,7 +731,7 @@ The API create its own nodejs server at this address
 http://localhost:5000/
 ```
 
-# Endpoints
+## Endpoints
 
 #### Create a New Agent
 
@@ -819,7 +808,7 @@ This is the content of the file.
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
 
-# Database Connection
+## Database Connection
 
 The API connects to a MySQL database for storing agent information. The database connection details are specified using environment variables:
 
@@ -828,7 +817,7 @@ The API connects to a MySQL database for storing agent information. The database
 - **DB_PASS**: The password for accessing the MySQL database.
 - **DB_MAIN**: The name of the main database.
 
-# User Folder Creation
+## User Folder Creation
 
 The API creates a folder named `/CTHULHU/users` if it doesn't already exist. Additionally, for each agent created, a user-specific folder is created within `/CTHULHU/users`.
 
@@ -865,7 +854,7 @@ The created folder structure would be:
   - `/users`
     - `/123`
 
-# RSA Key Pair Generation and Storage
+## RSA Key Pair Generation and Storage
 
 For each agent created, the API generates an RSA key pair consisting of a public key and a private key. The key pair is generated using a modulus length of 4096 bits. The generated keys are stored in the MySQL database along with other agent information.
 
@@ -882,7 +871,7 @@ When a new agent is created, the API performs the following steps to generate th
 3. The public key string is stored in the `pubKey` field of the agent's record in the MySQL database.
 4. The private key string is stored in the `privKey` field of the agent's record in the MySQL database.
 
-### Example
+#### Example
 
 When a new agent is created, the API generates an RSA key pair. Let's assume the key generation process produces the following keys:
 
@@ -910,9 +899,9 @@ The generated keys are then stored in the agent's record in the MySQL database.
 
 # C2
 
-# Database
+## Database
 
-# View
+## View
 
 # License
 
