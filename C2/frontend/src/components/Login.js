@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { postFetch } from '../utils/functions';
-import cthulhuLogo from '../assets/img/logo/CTHULHU.png';
+import cthulhuLogo from '../assets/img/dogs/image3.jpeg';
 import Session from 'react-session-api'
 import { useNavigate } from "react-router-dom";
 
