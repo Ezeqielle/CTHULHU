@@ -54,7 +54,7 @@ const Login = () => {
                                 <div className="col-lg-6">
                                     <div className="p-5">
                                         <div className="text-center">
-                                            <h4 className="text-dark mb-4">Welcome Back biatch!</h4>
+                                            <h4 className="text-dark mb-4">CTHULHU C&C</h4>
                                         </div>
                                         <form className="user" onSubmit={handleSubmit}>
                                             <div className="mb-3"><input className="form-control form-control-user" type="text" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Username" name="username" onChange={e => setUserName(e.target.value)} /></div>
