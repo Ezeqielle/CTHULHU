@@ -10,8 +10,8 @@ const Navbar = () => (
         className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
         href="./src"
       >
-        <div className="sidebar-brand-icon rotate-n-15">
-          <i className="fa-thin fa-computer" style="color: #ff7800;"></i>
+        <div className="sidebar-brand-icon">
+          <i className="fa-thin fa-computer"></i>
         </div>
         <div className="sidebar-brand-text mx-3">
           <span>Admin CTHULHU</span>
