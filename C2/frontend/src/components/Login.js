@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { postFetch } from '../utils/functions';
-import dogImage from '../assets/img/dogs/image3.jpeg';
+import cthulhuLogo from '../assets/img/logo/CTHULHU.png';
 import Session from 'react-session-api'
 import { useNavigate } from "react-router-dom";
 
@@ -49,7 +49,7 @@ const Login = () => {
                         <div className="card-body p-0">
                             <div className="row">
                                 <div className="col-lg-6 d-none d-lg-flex">
-                                    <div className="flex-grow-1 bg-login-image" style={{ backgroundImage: `url(${dogImage})` }}></div>
+                                    <div className="flex-grow-1 bg-login-image" style={{ backgroundImage: `url(${cthulhuLogo})` }}></div>
                                 </div>
                                 <div className="col-lg-6">
                                     <div className="p-5">
