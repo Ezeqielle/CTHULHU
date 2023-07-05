@@ -17,6 +17,7 @@ services:
     restart: always
     environment:
       ADMINER_DEFAULT_SERVER: mariadb
+      WAIT_HOSTS: mariadb:3306
     depends_on:
       - mariadb
     networks:
