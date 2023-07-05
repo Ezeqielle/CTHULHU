@@ -36,7 +36,6 @@ services:
       DB_USER: ${DB_USER}
       DB_MAIN: ${DB_MAIN}
       DB_PASS: ${DB_ROOT_PASS}
-      WAIT_HOSTS: mariadb:3306
     networks:
       - backend
       - frontend
