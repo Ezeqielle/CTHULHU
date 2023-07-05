@@ -17,7 +17,6 @@ services:
     restart: always
     environment:
       ADMINER_DEFAULT_SERVER: mariadb
-      WAIT_HOSTS: mariadb:3306
     depends_on:
       - mariadb
     networks:
@@ -37,11 +36,13 @@ services:
       DB_USER: ${DB_USER}
       DB_MAIN: ${DB_MAIN}
       DB_PASS: ${DB_ROOT_PASS}
+      WAIT_HOSTS: mariadb:3306
     networks:
       - backend
       - frontend
     ports:
       - 5000:${BACKEND_PORT}
+    restart: on-failure
 
   frontend:
     restart: always
