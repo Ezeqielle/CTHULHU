@@ -11,7 +11,7 @@ const Navbar = () => (
         href="./src"
       >
         <div className="sidebar-brand-icon rotate-n-15">
-          <i className="fas fa-laugh-wink"></i>
+          <i class="fa-light fa-computer"></i>
         </div>
         <div className="sidebar-brand-text mx-3">
           <span>Admin CTHULHU</span>
