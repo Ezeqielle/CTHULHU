@@ -1011,6 +1011,7 @@ dependencies = [
  "walkdir",
  "whoami",
  "winapi",
+ "zeroize",
 ]
 
 [[package]]
