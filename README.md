@@ -6,7 +6,7 @@
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=Flat&logo=docker&logoColor=white)
 [![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=Flat)](./LICENSE)
 
-![CTHULHU](cthulhu.jpg)
+![CTHULHU](./Images/cthulhu.jpg)
 
 ## Table of Contents
 
@@ -903,6 +903,12 @@ The generated keys are then stored in the agent's record in the MySQL database.
 ## Database
 
 ## View
+
+### Agent View
+
+In this page you can see all the agents that are connected to the C2.
+
+![Agent View](./Images/agent_view.png)
 
 # License
 
