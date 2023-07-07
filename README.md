@@ -29,6 +29,9 @@
     - [Database Connection](#database-connection)
     - [User Folder Creation](#user-folder-creation)
     - [RSA Key Pair Generation and Storage](#rsa-key-pair-generation-and-storage)
+  - [C2](#c2)
+    - [View](#view)
+      - [Agent View](#agent-view)
   - [License](#license)
 
 # Project overview
@@ -901,6 +904,58 @@ The generated keys are then stored in the agent's record in the MySQL database.
 # C2
 
 ## Database
+
+### Database Schema Documentation
+
+#### Table: `agent`
+
+This table stores information about agents.
+
+| Column Name       | Data Type     | Description                             |
+|-------------------|---------------|-----------------------------------------|
+| `agentID`         | int(255)     | Unique identifier for each agent.       |
+| `ip`              | varchar(20)  | IP address of the agent.                |
+| `host`            | varchar(50)  | Host name of the agent.                  |
+| `versionOS`       | varchar(30)  | Version of the operating system.         |
+| `hookUser`        | varchar(50)  | User associated with the agent.          |
+| `hookDate`        | timestamp    | Date and time of the agent's hook.       |
+| `privKey`         | TEXT         | Private key of the agent.                |
+| `pubKey`          | TEXT         | Public key of the agent.                 |
+| `pathToData`      | varchar(255) | Path to agent's data.                    |
+| `country`         | char(50)     | Country of the agent.                    |
+| `totalFilesSend`  | int(255)     | Total number of files sent by the agent. |
+| `totalFilesEncrypt`| int(255)     | Total number of files encrypted by the agent. |
+| `PRIMARY KEY`     | `agentID`     | Primary key of the table.                |
+
+#### Table: `roles`
+
+This table stores different roles in the system.
+
+| Column Name       | Data Type     | Description                                |
+|-------------------|---------------|--------------------------------------------|
+| `role_id`         | int           | Unique identifier for each role.           |
+| `role_name`       | varchar(191) | Name of the role.                          |
+| `PRIMARY KEY`     | `role_id`      | Primary key of the table.                   |
+
+#### Table: `users`
+
+This table stores user information.
+
+| Column Name          | Data Type     | Description                                      |
+|----------------------|---------------|--------------------------------------------------|
+| `user_id`            | int           | Unique identifier for each user.                 |
+| `user_firstname`     | varchar(191) | First name of the user.                          |
+| `user_lastname`      | varchar(191) | Last name of the user.                           |
+| `user_name`          | varchar(191) | Username of the user.                            |
+| `user_email`         | varchar(191) | Email address of the user.                       |
+| `user_password`      | varchar(191) | Password of the user.                            |
+| `user_token`         | varchar(191) | Token associated with the user (optional).        |
+| `role_id`            | int           | Foreign key referencing the `role_id` in `roles` table. |
+| `PRIMARY KEY`        | `user_id`       | Primary key of the table.                          |
+| `users_user_email_key` | (unique)      | Unique constraint on `user_email` column.       |
+| `users_role_id_key`   | (index)       | Index on `role_id` column.                      |
+| `users_role_id_fkey`  | (foreign key) | Foreign key constraint referencing `role_id` in `roles` table. |
+
 
 ## View
 
