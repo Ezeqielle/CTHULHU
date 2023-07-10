@@ -36,7 +36,7 @@
 
 # Project overview
 
-CTHULHU is a package a package containing a ransomware and a C2. The ransomware is devloped in **Rust** and the C2 in **nodeJS** and **ReactJS**.
+CTHULHU is a package containing a ransomware and a C2. The ransomware is devloped in **Rust** and the C2 in **nodeJS** and **ReactJS**.
 
 # Infrastructure
 
